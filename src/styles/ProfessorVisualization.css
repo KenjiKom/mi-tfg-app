@@ -1,0 +1,158 @@
+.teacher-dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f3e5f5;
+    font-family: Arial, sans-serif;
+  }
+  
+  .teacher-dashboard h1 {
+    font-size: 2.5rem;
+    color: #4a148c;
+    margin-bottom: 1rem;
+  }
+  
+  .teacher-dashboard p {
+    font-size: 1.2rem;
+    color: #4e342e; 
+    text-align: center;
+    max-width: 600px;
+  }
+  
+  .course-filters {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .course-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #7b1fa2;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .course-button:hover {
+    background-color: #4a148c;
+  }
+  
+  .course-button.active {
+    background-color: #4a148c;
+  }
+  
+  .charts-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+    width: 100%;
+  }
+  
+  .chart-item {
+    width: 48%; /* Aumentamos el ancho para las gráficas */
+  }
+  
+  table {
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f3e5f5;
+    color: #4a148c;
+  }
+  
+  tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .table-container {
+    position: relative;
+    margin-top: 20px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px; /* Espacio para los botones de paginación */
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+/* Estilos para el botón de generación de PDF */
+.pdf-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #7b1fa2;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .pdf-button:hover {
+    background-color: #4a148c;
+  }
+  
+  /* Estilos para los botones de paginación */
+  .pagination-controls {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .pagination-controls button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #7b1fa2;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .pagination-controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .pagination-controls button:hover:not(:disabled) {
+    background-color: #4a148c;
+  }
+  
+  .pagination-controls span {
+    font-size: 1rem;
+    color: #4a148c;
+  }
+
+  

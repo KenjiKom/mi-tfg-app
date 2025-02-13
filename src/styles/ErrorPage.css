@@ -1,0 +1,41 @@
+/* ErrorPage.css */
+.error-page {
+    display: flex;
+    flex-direction: column; /* Asegura que los elementos se apilen verticalmente */
+    justify-content: center; /* Centra el contenido verticalmente */
+    align-items: center; /* Centra el contenido horizontalmente */
+    height: 100vh; /* Usa toda la altura de la ventana */
+    text-align: center; /* Centra el texto */
+    background-color: #f8d7da; /* Fondo de error */
+    color: #721c24; /* Color de texto */
+    font-family: Arial, sans-serif;
+}
+
+.error-page h2 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.error-page p {
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-page a {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #f5c6cb;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.error-page a:hover {
+    background-color: #f1b0b7;
+    border-color: #f1b0b7;
+}
