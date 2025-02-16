@@ -3,6 +3,7 @@ import '../styles/ProfessorVisualization.css';
 import axios from 'axios';
 import { Line, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto'; // Necesario para Chart.js
+import { Header, Footer } from "../components/HeaderFooter.js";
 
 const ProfessorVisualization = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -174,6 +175,7 @@ const ProfessorVisualization = () => {
 
   return (
     <div className="teacher-dashboard">
+      <Header />
       <h1>Visualización de Alumnos y Predicciones</h1>
       {error && <p>{error}</p>}
 
@@ -254,6 +256,7 @@ const ProfessorVisualization = () => {
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

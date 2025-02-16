@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/StudentVisualization.css';
 import axios from 'axios';
+import { Header, Footer } from "../components/HeaderFooter.js";
 
 const consejosPorPerfil = {
   'Alto rendimiento': 'Sigue así, mantén tus hábitos de estudio y ayuda a otros compañeros.',
@@ -38,6 +39,7 @@ const StudentVisualization = () => {
 
   return (
     <div className="student-dashboard">
+      <Header />
       <h1>Tu Perfil Académico</h1>
       {error ? (
         <p>{error}</p>
@@ -49,6 +51,7 @@ const StudentVisualization = () => {
       ) : (
         <p>Cargando...</p>
       )}
+      <Footer />
     </div>
   );
 };
