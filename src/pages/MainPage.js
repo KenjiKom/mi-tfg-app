@@ -7,21 +7,33 @@ const MainPage = () => {
   const [role, setRole] = useState("");
 
   useEffect(() => {
-    // Aquí obtendrás la información de autenticación real
-    const storedUser = localStorage.getItem("user");
-    const storedRole = localStorage.getItem("role");
+    const getUserData = () => {
+      const storedUser = localStorage.getItem("user");
+      const storedRole = localStorage.getItem("role");
 
-    if (storedUser && storedRole) {
-      setUser(storedUser);
-      setRole(storedRole);
-    }
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+      setRole(storedRole || "");
+    };
+
+    // Ejecutamos al montar
+    getUserData();
+
+    // Escuchar cambios en localStorage (para cuando se haga logout)
+    const handleStorageChange = () => getUserData();
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-pink-50">
       <Header />
       <main className="flex-grow flex flex-col items-center justify-center text-center p-6">
-        <h1 className="text-4xl font-bold text-pink-600 mb-4">Bienvenido a Nuestra Página</h1>
+        <h1 className="text-4xl font-bold text-pink-600 mb-4">
+          Bienvenido a Nuestra Página
+        </h1>
         <p className="text-lg text-gray-700 max-w-2xl">
           Explora nuestra plataforma y conoce más sobre nosotros. Si tienes preguntas, revisa nuestra sección de Preguntas Frecuentes.
         </p>

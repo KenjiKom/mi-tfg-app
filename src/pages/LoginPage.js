@@ -17,14 +17,27 @@ const LoginPage = () => {
       })
       .then(response => {
         const user = response.data;
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        navigate('/');
+  
+        if (user) {
+          // Determinar el rol basado en los valores booleanos
+          let role = "student"; // Valor por defecto
+          if (user.is_teacher) role = "teacher";
+          if (user.is_admin) role = "admin"; // Si hay admin, tiene prioridad
+  
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('role', role); // Guardamos el rol correcto
+  
+          navigate('/');
+          window.location.reload(); // Forzar la recarga para aplicar los cambios
+        } else {
+          setError("Error: No se recibió una respuesta válida del servidor.");
+        }
       })
       .catch(() => {
         setError('Nombre de usuario o contraseña incorrectos.');
       });
   };
+  
 
   return (
     <div className="login-page">
