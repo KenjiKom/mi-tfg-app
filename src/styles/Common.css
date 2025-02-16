@@ -1,0 +1,55 @@
+/* Estilos generales */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #fdfdfd;
+    color: #444;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Estilo para cada página */
+  .page-container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Títulos */
+  .page-title {
+    font-size: 2rem;
+    color: #d47fa6;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  /* Texto */
+  .page-content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+  }
+  
+  /* Links */
+  a {
+    color: #d47fa6;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .page-container {
+      padding: 15px;
+    }
+  
+    .page-title {
+      font-size: 1.8rem;
+    }
+  }
+  

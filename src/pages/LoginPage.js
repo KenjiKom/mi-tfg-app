@@ -19,11 +19,7 @@ const LoginPage = () => {
         const user = response.data;
         localStorage.setItem('user', JSON.stringify(user));
         
-        if (user.is_teacher) {
-          navigate('/ProfessorDash');
-        } else {
-          navigate('/StudentDash');
-        }
+        navigate('/');
       })
       .catch(() => {
         setError('Nombre de usuario o contraseña incorrectos.');
