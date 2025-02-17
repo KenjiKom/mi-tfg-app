@@ -176,6 +176,7 @@ const ProfessorVisualization = () => {
   return (
     <div className="teacher-dashboard">
       <Header />
+      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content">
       <h1>Visualización de Alumnos y Predicciones</h1>
       {error && <p>{error}</p>}
 
@@ -238,7 +239,7 @@ const ProfessorVisualization = () => {
             )}
           </tbody>
         </table>
-
+        <br/>
         {/* Controles de paginación */}
         <div className="pagination-controls">
           <button
@@ -256,6 +257,7 @@ const ProfessorVisualization = () => {
           </button>
         </div>
       </div>
+      </main>
       <Footer />
     </div>
   );

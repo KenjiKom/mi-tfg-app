@@ -40,6 +40,7 @@ const StudentVisualization = () => {
   return (
     <div className="student-dashboard">
       <Header />
+      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content">
       <h1>Tu Perfil Académico</h1>
       {error ? (
         <p>{error}</p>
@@ -51,6 +52,7 @@ const StudentVisualization = () => {
       ) : (
         <p>Cargando...</p>
       )}
+      </main>
       <Footer />
     </div>
   );

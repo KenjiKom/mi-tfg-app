@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
+import logo from '../imgs/logo.png';
 
 const LoginPage = () => {
   const [nombre, setNombre] = useState('');
@@ -41,7 +42,9 @@ const LoginPage = () => {
 
   return (
     <div className="login-page">
+      
       <div className="login-form">
+      <img src={logo} alt="Logo" className="logo"/>   
         <h1>Iniciar sesión</h1>
         {error && <p className="error-message">{error}</p>}
         <div className="form-group">

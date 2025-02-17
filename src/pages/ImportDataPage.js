@@ -23,7 +23,7 @@ const ImportDataPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-pink-50">
       <Header />
-      <main className="flex-grow flex flex-col items-center justify-center text-center p-6">
+      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content">
         <h1 className="text-4xl font-bold text-pink-600 mb-4">Importar Datos</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
