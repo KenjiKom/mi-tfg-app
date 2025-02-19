@@ -17,9 +17,13 @@ def connect_db():
     )
 
 def get_current_course():
-    file_path = r"C:\Users\juank\OneDrive\Escritorio\TFG\Datos\Asignaturas\Curso_Actual.xlsx"
-    df = pd.read_excel(file_path)
-    return str(df.iloc[0, 0])
+    conn = connect_db()
+    query = """
+    SELECT MAX(Curso) FROM Matricula 
+    """
+    curso = pd.read_sql(query, conn)
+    conn.close()
+    return curso.iloc[0, 0]
 
 def get_old_students_data():
     conn = connect_db()
@@ -83,13 +87,13 @@ def get_current_students_data():
        MAX(E.Hora) AS ultima_fecha_evento
     FROM Evento E
     JOIN Matricula M ON E.id_matricula = M.id
-    WHERE M.Curso = "2024-25"
+    WHERE M.Curso = %s
     AND E.Evento IN ("Se ha subido una entrega.", "Mensaje enviado", 
                  "Algún contenido ha sido publicado.", "Curso visto", 
                  "Tema visto", "Entrega creada", "Intento enviado")
     GROUP BY M.id;
     """
-    df = pd.read_sql(query, conn)
+    df = pd.read_sql(query, conn, params=[curso_actual])
     conn.close()
     df['ultima_fecha_evento'] = pd.to_datetime(df['ultima_fecha_evento'])
     return df[['id_matricula', 'num_eventos', 'ultima_fecha_evento']]
@@ -131,13 +135,13 @@ def get_old_students_with_clusters():
     FROM Evento E
     JOIN Matricula M ON E.id_matricula = M.id
     JOIN Prediccion P ON M.id = P.id_matricula
-    WHERE M.Curso = '2023-24' AND E.Evento IN ("Se ha subido una entrega.", "Mensaje enviado", 
+    WHERE M.Curso = %s AND E.Evento IN ("Se ha subido una entrega.", "Mensaje enviado", 
     "Algún contenido ha sido publicado.", "Curso visto", 
     "Tema visto", "Entrega creada", "Intento enviado")
     GROUP BY M.id, M.Nota, P.Cluster_numero;
     """
 
-    df = pd.read_sql(query, conn)
+    df = pd.read_sql(query, conn, params=[curso_anterior])
     conn.close()
     # Asegurarse de que no haya NaN en 'Nota'
     df['Nota'] = df['Nota'].fillna(0)  # Rellenar NaN con un valor predeterminado (0)

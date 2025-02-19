@@ -1,55 +1,110 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { exec } = require('child_process');  // Para ejecutar comandos de consola (como Python)
+const { exec } = require('child_process');
 const router = express.Router();
 
-// Configuración de multer para manejar la carga de archivos
+// Configurar almacenamiento de Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Establece el destino como la carpeta 'uploads' en el directorio 'backend'
-    cb(null, path.join(__dirname, '..', 'uploads'));  // Esto va a la carpeta uploads dentro de 'backend'
+    cb(null, path.join(__dirname, '..', 'uploads')); // Guardar en 'uploads'
   },
   filename: (req, file, cb) => {
-    // Usar el timestamp para garantizar un nombre único para cada archivo
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(null, file.originalname); // Mantener el nombre original
   },
 });
 
-// Inicializar multer con la configuración de almacenamiento
+// Configurar Multer para aceptar dos archivos
 const upload = multer({ storage: storage });
 
-// Ruta para subir el archivo y ejecutar el script
-router.post('/upload-and-run', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
+router.post('/upload-and-run', upload.fields([
+  { name: 'usuarios', maxCount: 1 },
+  { name: 'asignaturas', maxCount: 1 },
+  { name: 'curso', maxCount: 1 },
+  { name: 'notas', maxCount: 1 },
+  { name: 'eventos', maxCount: 1 },  
+]), (req, res) => {
+  if (!req.files || !req.files.usuarios || !req.files.asignaturas || !req.files.curso || !req.files.notas || !req.files.eventos) {
+    return res.status(400).json({ message: 'Todos los archivos deben ser subidos.' });
   }
 
-  // Log del archivo subido
-  console.log('Archivo subido:', req.file);
+  const usuariosPath = path.join(__dirname, '..', 'uploads', req.files.usuarios[0].filename);
+  const asignaturasPath = path.join(__dirname, '..', 'uploads', req.files.asignaturas[0].filename);
+  const cursoPath = path.join(__dirname, '..', 'uploads', req.files.curso[0].filename);
+  const notasPath = path.join(__dirname, '..', 'uploads', req.files.notas[0].filename);
+  const eventosPath = path.join(__dirname, '..', 'uploads', req.files.eventos[0].filename);  // Ruta de Eventos.xlsx
 
-  // Ejecutar un script de Python (reemplaza el nombre del script y los argumentos según corresponda)
-  const scriptPath = path.join(__dirname, '..', 'scripts', 'Carga_datos_1.py');  // Ruta al script Python
-  const filePath = path.join(__dirname, '..', 'uploads', req.file.filename);  // Ruta del archivo subido
+  const cargaDatos1Script = path.join(__dirname, '..', 'scripts', 'Carga_datos_1.py');
+  const cargaDatos2Script = path.join(__dirname, '..', 'scripts', 'Carga_datos_2.py');
+  const cargaDatos3Script = path.join(__dirname, '..', 'scripts', 'Carga_datos_3.py');  // Ruta para el nuevo script
 
-  // Comando para ejecutar el script Python pasando el archivo como argumento
-  const command = `python3 ${scriptPath} ${filePath}`;
+  // Ejecutar primero Carga_datos_1.py
+  const command1 = `python ${cargaDatos1Script} ${usuariosPath} ${asignaturasPath}`;
 
-  // Ejecutar el script de Python
-  exec(command, (error, stdout, stderr) => {
+  exec(command1, (error, stdout, stderr) => {
     if (error) {
-      console.error(`Error al ejecutar el script: ${error.message}`);
-      return res.status(500).json({ message: 'Error al ejecutar el script', error: error.message });
+      console.error(`Error al ejecutar Carga_datos_1.py: ${error.message}`);
+      return res.status(500).json({ message: 'Error al ejecutar Carga_datos_1.py', error: error.message });
     }
 
     if (stderr) {
       console.error(`stderr: ${stderr}`);
-      return res.status(500).json({ message: 'Error en el script', error: stderr });
+      return res.status(500).json({ message: 'Error en Carga_datos_1.py', error: stderr });
     }
 
-    // Si todo salió bien, retornar el resultado
-    console.log(`stdout: ${stdout}`);
-    res.json({ message: 'Archivo subido y script ejecutado correctamente', output: stdout });
+    console.log(`stdout Carga_datos_1.py: ${stdout}`);
+
+    // Si Carga_datos_1.py se ejecuta correctamente, ejecutar Carga_datos_2.py
+    const command2 = `python ${cargaDatos2Script} ${usuariosPath} ${asignaturasPath} ${cursoPath} ${notasPath}`;
+
+    exec(command2, (error2, stdout2, stderr2) => {
+      if (error2) {
+        console.error(`Error al ejecutar Carga_datos_2.py: ${error2.message}`);
+        return res.status(500).json({ message: 'Error al ejecutar Carga_datos_2.py', error: error2.message });
+      }
+
+      if (stderr2) {
+        console.error(`stderr Carga_datos_2.py: ${stderr2}`);
+        return res.status(500).json({ message: 'Error en Carga_datos_2.py', error: stderr2 });
+      }
+
+      console.log(`stdout Carga_datos_2.py: ${stdout2}`);
+
+      // Si Carga_datos_2.py se ejecuta correctamente, ejecutar Carga_datos_3.py
+      const command3 = `python ${cargaDatos3Script} ${cursoPath} ${eventosPath}`;
+
+      exec(command3, (error3, stdout3, stderr3) => {
+        if (error3) {
+          console.error(`Error al ejecutar Carga_datos_3.py: ${error3.message}`);
+          return res.status(500).json({ message: 'Error al ejecutar Carga_datos_3.py', error: error3.message });
+        }
+
+        if (stderr3) {
+          console.error(`stderr Carga_datos_3.py: ${stderr3}`);
+          return res.status(500).json({ message: 'Error en Carga_datos_3.py', error: stderr3 });
+        }
+
+        console.log(`stdout Carga_datos_3.py: ${stdout3}`);
+        res.json({ message: 'Archivos subidos y scripts ejecutados correctamente', output: stdout3 });
+      });
+    });
+  });
+});
+
+router.post('/prediccion-script', (req, res) => {
+  const predictionScript = path.join(__dirname, '..', 'scripts', 'Prediccion.py');
+  const command1 = `python ${predictionScript}`;
+
+  exec(command1, (error, stderr) => {
+    if (error) {
+      console.error(`Error al ejecutar Prediccion.py: ${error.message}`);
+      return res.status(500).json({ message: 'Error al ejecutar Prediccion.py', error: error.message });
+    }
+
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      return res.status(500).json({ message: 'Error en Prediccion.py', error: stderr });
+    }
   });
 });
 

@@ -1,8 +1,8 @@
+import sys
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
-
-# Orden topológico de la subida de datos: Usuarios -> Asignaturas -> Matricula -> Eventos (la entidad predicciones se realiza más tarde junto al algoritmo) 
+from sqlalchemy import text
 
 DB_USER = "root"
 DB_PASSWORD = "root"
@@ -11,14 +11,13 @@ DB_NAME = "TFG"
 
 engine = create_engine(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
 
-# Función para cargar los datos
-def cargar_datos_a_bd():
+def cargar_datos_a_bd(usuarios_path, asignaturas_path, curso_path, notas_path):
     # Cargar los datos desde los archivos Excel
-    usuarios_excel = pd.read_excel(r"C:\Users\juank\OneDrive\Escritorio\TFG\Datos\Asignaturas\BD\Origen\Usuarios\Usuarios.xlsx")
-    asignaturas_excel = pd.read_excel(r"C:\Users\juank\OneDrive\Escritorio\TFG\Datos\Asignaturas\BD\Origen\Asignatura\Asignatura.xlsx")
-    curso_actual = pd.read_excel(r"C:\Users\juank\OneDrive\Escritorio\TFG\Datos\Asignaturas\Curso_Actual.xlsx")
-    notas_excel = pd.read_excel(r"C:\Users\juank\OneDrive\Escritorio\TFG\Datos\Asignaturas\BD\Origen\Notas\Notas.xlsx")
-
+    usuarios_excel = pd.read_excel(usuarios_path)
+    asignaturas_excel = pd.read_excel(asignaturas_path)
+    curso_actual = pd.read_excel(curso_path)
+    notas_excel = pd.read_excel(notas_path)
+    
     # Obtener el curso actual
     curso = curso_actual.iloc[0, 0]
 
@@ -64,13 +63,13 @@ def cargar_datos_a_bd():
                 # Si ya existe y tiene una nueva nota, actualizar la nota
                 with engine.connect() as connection:
                     connection.execute(
-                        f"""
-                        UPDATE Matricula
-                        SET Nota = {nota_final}
-                        WHERE id_usuario = {usuario['id']} AND
-                              id_asignatura = {asignatura['id']} AND
-                              Curso = '{curso}'
-                        """
+                        text(f"""
+                            UPDATE Matricula
+                            SET Nota = {nota_final}
+                            WHERE id_usuario = {usuario['id']} AND
+                                id_asignatura = {asignatura['id']} AND
+                                Curso = '{curso}'
+                        """)
                     )
 
     # Convertir la lista de nuevas matrículas a un DataFrame
@@ -85,4 +84,13 @@ def cargar_datos_a_bd():
 
 # Ejecutar el script
 if __name__ == "__main__":
-    cargar_datos_a_bd()
+    if len(sys.argv) < 5:
+        print("Uso: python Carga_datos_2.py <usuarios.xlsx> <asignaturas.xlsx> <curso.xlsx> <notas.xlsx>")
+        sys.exit(1)
+
+    usuarios_path = sys.argv[1]
+    asignaturas_path = sys.argv[2]
+    curso_path = sys.argv[3]
+    notas_path = sys.argv[4]
+
+    cargar_datos_a_bd(usuarios_path, asignaturas_path, curso_path, notas_path)

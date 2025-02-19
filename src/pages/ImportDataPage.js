@@ -6,6 +6,9 @@ import Pautas from '../documents/Pautas.pdf';
 const ImportDataPage = () => {
   const [fileUsuarios, setFileUsuarios] = useState(null);
   const [fileAsignaturas, setFileAsignaturas] = useState(null);
+  const [fileCurso, setFileCurso] = useState(null);
+  const [fileNotas, setFileNotas] = useState(null);
+  const [fileEventos, setFileEventos] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleUsuariosChange = (e) => {
@@ -16,16 +19,31 @@ const ImportDataPage = () => {
     setFileAsignaturas(e.target.files[0]);
   };
 
+  const handleCursoChange = (e) => {
+    setFileCurso(e.target.files[0]);
+  };
+
+  const handleNotasChange = (e) => {
+    setFileNotas(e.target.files[0]);
+  };
+
+  const handleEventosChange = (e) => {
+    setFileEventos(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!fileUsuarios || !fileAsignaturas) {
-      alert("Por favor, selecciona ambos archivos.");
+    if (!fileUsuarios || !fileAsignaturas || !fileCurso || !fileNotas || !fileEventos) {
+      alert("Por favor, selecciona todos los archivos.");
       return;
     }
 
     const formData = new FormData();
     formData.append("usuarios", fileUsuarios);
     formData.append("asignaturas", fileAsignaturas);
+    formData.append("curso", fileCurso);
+    formData.append("notas", fileNotas);
+    formData.append("eventos", fileEventos);
 
     try {
       const response = await fetch("http://localhost:5000/scripts/upload-and-run", {
@@ -77,10 +95,19 @@ const ImportDataPage = () => {
           <label>Usuarios.xlsx</label>
           <input type="file" onChange={handleUsuariosChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
           
-          <label>Asignatura.xlsx</label>
+          <label>Asignaturas.xlsx</label>
           <input type="file" onChange={handleAsignaturasChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
-          <br /><br />
+          
+          <label>Curso.xlsx</label>
+          <input type="file" onChange={handleCursoChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
+          
+          <label>Notas.xlsx</label>
+          <input type="file" onChange={handleNotasChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
 
+          <label>Eventos.xlsx</label>
+          <input type="file" onChange={handleEventosChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
+          
+          <br /><br />
           <button type="submit" className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login">
             Subir Archivos
           </button>
