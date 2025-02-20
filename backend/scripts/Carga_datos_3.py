@@ -9,27 +9,15 @@ DB_HOST = "localhost"
 DB_NAME = "TFG"
 
 engine = create_engine(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
-def parse_hora(hora_str):
-    # %d -> día (01-31)
-    # %m -> mes (01-12)
-    # %y -> año en 2 dígitos (00-99)
-    # %H -> hora en 24 horas (00-23)
-    # %M -> minutos (00-59)
-    # %S -> segundos (00-59)
-    return pd.to_datetime(hora_str, format='%d/%m/%y, %H:%M:%S', errors='coerce')
 
 def cargar_datos_a_bd(curso_path, eventos_path):
     
-    eventos_excel = pd.read_excel(
-    eventos_path,
-    parse_dates=['Hora'], 
-    date_parser=parse_hora
-    )
+    eventos_excel = pd.read_excel(eventos_path)
 
-    # Si parse_dates falla, convertir manualmente
-    eventos_excel['Hora'] = pd.to_datetime(eventos_excel['Hora'], errors='coerce')
+    # Convertir manualmente la columna 'Hora' a datetime
+    eventos_excel['Hora'] = pd.to_datetime(eventos_excel['Hora'], format='%d/%m/%y, %H:%M:%S', errors='coerce')
 
-    # Filtrar fechas inválidasw
+    # Filtrar fechas inválidas
     eventos_excel = eventos_excel[
         (eventos_excel['Hora'] >= '1900-01-01') & (eventos_excel['Hora'] <= '2100-12-31')
     ]

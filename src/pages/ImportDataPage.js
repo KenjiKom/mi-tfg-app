@@ -10,6 +10,7 @@ const ImportDataPage = () => {
   const [fileNotas, setFileNotas] = useState(null);
   const [fileEventos, setFileEventos] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false); // Estado para controlar el popup
 
   const handleUsuariosChange = (e) => {
     setFileUsuarios(e.target.files[0]);
@@ -38,6 +39,8 @@ const ImportDataPage = () => {
       return;
     }
 
+    setShowPopup(true); // Mostrar el popup
+
     const formData = new FormData();
     formData.append("usuarios", fileUsuarios);
     formData.append("asignaturas", fileAsignaturas);
@@ -56,6 +59,8 @@ const ImportDataPage = () => {
     } catch (error) {
       alert("Error al importar datos.");
       console.error(error);
+    } finally {
+      setShowPopup(false); // Ocultar el popup cuando termine la operación
     }
   };
 
@@ -112,6 +117,15 @@ const ImportDataPage = () => {
             Subir Archivos
           </button>
         </form>
+        {/* Popup de carga */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <p className="text-lg font-semibold">Subiendo archivos...</p>
+            <p>Por favor, espera unos minutos.</p>
+          </div>
+        </div>
+      )}
 
         <h1 className="text-4xl font-bold text-pink-600 mb-4">Procesar y predecir rendimiento</h1>
         <p><br/>Ejecutar el algoritmo de predicción para actualizar la base de datos con predicciones actualizadas:</p>
@@ -125,6 +139,8 @@ const ImportDataPage = () => {
         </button>
       </main>
       <Footer />
+
+      
     </div>
   );
 };
