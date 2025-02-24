@@ -95,7 +95,7 @@ router.post('/prediccion-script', (req, res) => {
   const predictionScript = path.join(__dirname, '..', 'scripts', 'Prediccion.py');
   const command1 = `python ${predictionScript}`;
 
-  exec(command1, (error, stderr) => {
+  exec(command1, (error, stderr, stdoutP) => {
     if (error) {
       console.error(`Error al ejecutar Prediccion.py: ${error.message}`);
       return res.status(500).json({ message: 'Error al ejecutar Prediccion.py', error: error.message });
@@ -103,8 +103,11 @@ router.post('/prediccion-script', (req, res) => {
 
     if (stderr) {
       console.error(`stderr: ${stderr}`);
-      return res.status(500).json({ message: 'Error en Prediccion.py', error: stderr });
+      return res.status(500).json({ message: 'Predicciones realizadas', error: stderr });
     }
+
+    console.log(`stdout Prediccion.py: ${stdoutP}`);
+    res.json({ message: 'Predicciones realizadas.', output: stdoutP });
   });
 });
 

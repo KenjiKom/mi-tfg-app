@@ -200,9 +200,8 @@ def predict_current_students():
 
 if __name__ == "__main__":
     old_students_data = get_old_students_data()
-    kmeans_old_students(old_students_data)  # Asegura que Cluster se genera antes
-    print("PERFILES DE USUARIOS GUARDADOS.")
-    
+    kmeans_old_students(old_students_data)  # Asegura que Cluster se genera antes    
     predict_current_students()
-    print("PREDICCIONES DE USUARIOS GUARDADOS.")
+    print("Predicciones terminadas")
+
 

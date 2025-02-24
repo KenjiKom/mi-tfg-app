@@ -17,8 +17,9 @@ export const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("role");
+    localStorage.clear();
     setUser(null);
-    navigate("/"); // Redirigir a la página de inicio de sesión
+    navigate("/");
     window.location.reload();
   };
 

@@ -15,10 +15,10 @@ const ProfessorVisualization = () => {
   const [selectedNoteRange, setSelectedNoteRange] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Número de elementos por página
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Obtener el id del profesor desde el localStorage
-  const profesorId = localStorage.getItem('profesorId');
+  const profesorId = localStorage.getItem('id');
 
   // Función para aplicar todos los filtros
   const applyFilters = () => {

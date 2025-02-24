@@ -5,7 +5,7 @@ const router = express.Router();
 /// Ruta para verificar usuario y contraseña
 router.get('/login', (req, res) => {
     const { Nombre, Contrasena } = req.query;
-
+    
     db.query(
         'SELECT * FROM Usuario WHERE Nombre = ? AND Contrasena = ?',
         [Nombre, Contrasena],

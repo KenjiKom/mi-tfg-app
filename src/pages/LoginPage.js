@@ -26,7 +26,8 @@ const LoginPage = () => {
           if (user.is_admin) role = "admin"; // Si hay admin, tiene prioridad
   
           localStorage.setItem('user', JSON.stringify(user));
-          localStorage.setItem('role', role); // Guardamos el rol correcto
+          localStorage.setItem('role', role);
+          localStorage.setItem('id', user.id)
   
           navigate('/');
           window.location.reload(); // Forzar la recarga para aplicar los cambios
