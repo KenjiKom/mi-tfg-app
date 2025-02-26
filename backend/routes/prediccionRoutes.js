@@ -7,17 +7,25 @@ const router = express.Router();
 router.get('/alumnos', (req, res) => {
     const profesorId = req.query.profesorId; // Aquí recibimos el id del profesor
     
-    // Consulta para obtener las asignaturas del profesor
+    // Consulta para obtener las predicciones de los alumnos
     let query = `
         SELECT
             m.Curso,
             u.Nombre AS Alumno,
             p.Nota_predicha,
-            p.Cluster,
-            p.Cluster_numero
+            CASE 
+                WHEN p.Cluster = 'Perfil 3' THEN 'Notable'
+                WHEN p.Cluster = 'Perfil 2' THEN 'Sobresaliente'
+                WHEN p.Cluster = 'Perfil 1' THEN 'Insuficiente'
+                WHEN p.Cluster = 'Perfil 0' THEN 'Bajo / Nuevo Estudiante'
+                ELSE p.Cluster -- Por si hay otros perfiles no definidos
+            END AS Cluster,
+            p.Cluster_numero,
+            a.Nombre AS Asignatura
         FROM Matricula m
         JOIN Usuario u ON m.id_usuario = u.id
         JOIN Prediccion p ON m.id = p.id_matricula
+        JOIN Asignatura a ON m.id_asignatura = a.id
         WHERE m.id_asignatura IN (
             SELECT id_asignatura FROM Matricula WHERE id_usuario = ?
         )
@@ -37,13 +45,20 @@ router.get('/predicciones-alumno', (req, res) => {
     const query = `
         SELECT 
             m.Curso, 
+            a.Nombre AS Asignatura,
             p.Nota_predicha, 
-            p.Cluster, 
+            CASE 
+                WHEN p.Cluster = 'Perfil 3' THEN 'Notable'
+                WHEN p.Cluster = 'Perfil 2' THEN 'Sobresaliente'
+                WHEN p.Cluster = 'Perfil 1' THEN 'Insuficiente'
+                WHEN p.Cluster = 'Perfil 0' THEN 'Bajo / Nuevo Estudiante'
+                ELSE p.Cluster -- Por si hay otros perfiles no definidos
+            END AS Cluster, 
             p.Cluster_numero
         FROM Matricula m
         JOIN Prediccion p ON m.id = p.id_matricula
-        WHERE m.id_usuario = ?
-        ORDER BY m.Curso;
+        JOIN Asignatura a ON m.id_asignatura = a.id
+        WHERE m.id_usuario = ?;
     `;
   
     db.query(query, [alumnoId], (err, results) => {
@@ -56,7 +71,6 @@ router.get('/predicciones-alumno', (req, res) => {
         res.json(results);
     });
 });
-
 
 
 module.exports = router;

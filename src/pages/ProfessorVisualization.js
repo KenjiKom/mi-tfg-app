@@ -6,79 +6,61 @@ import { Chart as ChartJS } from 'chart.js/auto';
 import { Header, Footer } from "../components/HeaderFooter.js";
 
 const ProfessorVisualization = () => {
-  const [asignaturas, setAsignaturas] = useState([]);
-  const [selectedAsignatura, setSelectedAsignatura] = useState(null);
-  const [cursos, setCursos] = useState([]);
-  const [selectedCurso, setSelectedCurso] = useState(null);
   const [alumnos, setAlumnos] = useState([]);
+  const [asignaturas, setAsignaturas] = useState([]);
+  const [cursos, setCursos] = useState([]);
+  const [selectedAsignatura, setSelectedAsignatura] = useState(null);
+  const [selectedCurso, setSelectedCurso] = useState(null);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5); // Número de alumnos por página
 
   const profesorId = localStorage.getItem('id');
 
-  // Obtener las asignaturas del profesor
+  // Obtener los alumnos y extraer asignaturas y cursos
   useEffect(() => {
     if (!profesorId) {
       setError("No se encontró el ID del profesor");
       return;
     }
 
-    const fetchAsignaturas = async () => {
+    const fetchAlumnos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/asignaturas/asignaturas-profesor', {
+        const response = await axios.get('http://localhost:5000/predicciones/alumnos', {
           params: { profesorId }
         });
-        setAsignaturas(response.data);
+
+        // Extraer asignaturas y cursos únicos
+        const asignaturasUnicas = [...new Set(response.data.map(item => item.Asignatura))];
+        const cursosUnicos = [...new Set(response.data.map(item => item.Curso))];
+
+        setAlumnos(response.data);
+        setAsignaturas(asignaturasUnicas);
+        setCursos(cursosUnicos);
       } catch (err) {
-        setError("Hubo un error al obtener las asignaturas");
+        setError("Hubo un error al obtener los alumnos");
         console.error(err);
       }
     };
 
-    fetchAsignaturas();
+    fetchAlumnos();
   }, [profesorId]);
 
-  // Obtener los cursos de la asignatura seleccionada
-  const handleAsignaturaChange = async (asignatura) => {
-    setSelectedAsignatura(asignatura);
-    setSelectedCurso(null);
-    setAlumnos([]);
-
-    try {
-      const response = await axios.get('http://localhost:5000/asignaturas/cursos', {
-        params: { profesorId, asignatura }
-      });
-      setCursos(response.data);
-    } catch (err) {
-      setError("Hubo un error al obtener los cursos");
-      console.error(err);
-    }
-  };
-
-  // Obtener los alumnos del curso seleccionado
-  const handleCursoChange = async (curso) => {
-    setSelectedCurso(curso);
-    setCurrentPage(1);
-
-    try {
-      const response = await axios.get('http://localhost:5000/predicciones/alumnos', {
-        params: { profesorId, asignatura: selectedAsignatura, curso }
-      });
-      setAlumnos(response.data);
-    } catch (err) {
-      setError("Hubo un error al obtener los alumnos");
-      console.error(err);
-    }
-  };
+  // Filtrar alumnos por asignatura y curso
+  const filteredAlumnos = alumnos.filter(alumno => {
+    return (
+      (!selectedAsignatura || alumno.Asignatura === selectedAsignatura) &&
+      (!selectedCurso || alumno.Curso === selectedCurso)
+    );
+  });
 
   // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAlumnos = alumnos.slice(indexOfFirstItem, indexOfLastItem);
+  const currentAlumnos = filteredAlumnos.slice(indexOfFirstItem, indexOfLastItem);
 
   const nextPage = () => {
-    if (currentPage < Math.ceil(alumnos.length / itemsPerPage)) {
+    if (currentPage < Math.ceil(filteredAlumnos.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -89,13 +71,21 @@ const ProfessorVisualization = () => {
     }
   };
 
-  // Datos para el gráfico de barras
+  // Gráfico de barras
+  const notaCounts = Array(11).fill(0);
+  filteredAlumnos.forEach(alumno => {
+    const nota = Math.round(alumno.Nota_predicha);
+    if (nota >= 0 && nota <= 10) {
+      notaCounts[nota] += 1;
+    }
+  });
+
   const barChartData = {
-    labels: alumnos.map(alumno => alumno.Nombre),
+    labels: Array.from({ length: 11 }, (_, i) => i.toString()),
     datasets: [
       {
-        label: 'Nota Predicha',
-        data: alumnos.map(alumno => alumno.Nota_predicha),
+        label: 'Cantidad de Alumnos',
+        data: notaCounts,
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
       },
     ],
@@ -108,7 +98,6 @@ const ProfessorVisualization = () => {
     scales: {
       y: {
         beginAtZero: true,
-        max: 10, // Ajusta el máximo según tus necesidades
       },
     },
   };
@@ -124,11 +113,11 @@ const ProfessorVisualization = () => {
         <div className="course-filters">
           {asignaturas.map((asignatura) => (
             <button
-              key={asignatura.Nombre}
-              className={`course-button ${selectedAsignatura === asignatura.Nombre ? 'active' : ''}`}
-              onClick={() => handleAsignaturaChange(asignatura.Nombre)}
+              key={asignatura}
+              className={`course-button ${selectedAsignatura === asignatura ? 'active' : ''}`}
+              onClick={() => setSelectedAsignatura(asignatura)}
             >
-              {asignatura.Nombre}
+              {asignatura}
             </button>
           ))}
         </div>
@@ -138,11 +127,11 @@ const ProfessorVisualization = () => {
           <div className="course-filters">
             {cursos.map((curso) => (
               <button
-                key={curso.Curso}
-                className={`course-button ${selectedCurso === curso.Curso ? 'active' : ''}`}
-                onClick={() => handleCursoChange(curso.Curso)}
+                key={curso}
+                className={`course-button ${selectedCurso === curso ? 'active' : ''}`}
+                onClick={() => setSelectedCurso(curso)}
               >
-                {curso.Curso}
+                {curso}
               </button>
             ))}
           </div>
@@ -163,7 +152,7 @@ const ProfessorVisualization = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Nombre</th>
+                  <th>Alumno</th>
                   <th>Nota Predicha</th>
                   <th>Perfil</th>
                 </tr>
@@ -171,14 +160,14 @@ const ProfessorVisualization = () => {
               <tbody>
                 {currentAlumnos.map((alumno) => (
                   <tr key={alumno.id}>
-                    <td>{alumno.Nombre}</td>
+                    <td>{alumno.Alumno}</td>
                     <td>{alumno.Nota_predicha}</td>
                     <td>{alumno.Cluster}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
+            <br/><br/>
             {/* Paginación con flechas */}
             <div className="pagination-controls">
               <button onClick={prevPage} disabled={currentPage === 1}>
@@ -187,7 +176,7 @@ const ProfessorVisualization = () => {
               <span>{currentPage}</span>
               <button
                 onClick={nextPage}
-                disabled={currentPage === Math.ceil(alumnos.length / itemsPerPage)}
+                disabled={currentPage === Math.ceil(filteredAlumnos.length / itemsPerPage)}
               >
                 Siguiente &rarr;
               </button>
