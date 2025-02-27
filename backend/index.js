@@ -4,7 +4,6 @@ const db = require('./db/connection');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const asignaturaRoutes = require('./routes/asignaturaRoutes');
 const matriculaRoutes = require('./routes/matriculaRoutes');
-const eventoRoutes = require('./routes/eventoRoutes');
 const prediccionRoutes = require('./routes/prediccionRoutes');
 const scriptsRoutes = require('./routes/scriptsRoutes');  // Aquí debes asegurarte de que esté la ruta correcta
 
@@ -26,7 +25,6 @@ db.connect();
 app.use('/usuarios', usuarioRoutes);
 app.use('/asignaturas', asignaturaRoutes);
 app.use('/matriculas', matriculaRoutes);
-app.use('/eventos', eventoRoutes);
 app.use('/predicciones', prediccionRoutes);
 app.use('/scripts', scriptsRoutes);  // Asegúrate de que esta ruta esté bien registrada
 
