@@ -67,17 +67,17 @@ export const Header = () => {
 
 export const Footer = () => {
   return (
-    <footer id="footer" className="text-gray-800 p-4 text-center border-t-2 border-gray-300 shadow-md bg-aliceblue fixed bottom-0 w-full" class = "breadcrumb">
+    <footer id="footer" className="text-gray-500 p-4 text-center border-t-2 border-gray-300 shadow-md bg-aliceblue fixed bottom-0 w-full" class = "breadcrumb">
       <nav>
         <ul className="flex justify-center space-x-6">
           <li>
-            <Link to="/" className="hover:text-pink-500 transition-colors">Inicio</Link>
+            <Link to="/" className="hover:text-pink-300 transition-colors">Inicio</Link>
           </li>
           <li>
-            <Link to="/about-us" className="hover:text-pink-500 transition-colors">Sobre nosotros</Link>
+            <Link to="/about-us" className="hover:text-pink-300 transition-colors">Sobre nosotros</Link>
           </li>
           <li>
-            <Link to="/faq" className="hover:text-pink-500 transition-colors">Preguntas frecuentes</Link>
+            <Link to="/faq" className="hover:text-pink-300 transition-colors">Preguntas frecuentes</Link>
           </li>
         </ul>
       </nav>
