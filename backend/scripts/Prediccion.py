@@ -60,6 +60,8 @@ def preprocess_old_students_data(df):
     
     return df[['num_eventos', 'dias_desde_ultimo_evento', 'Nota']]
 
+
+# TODO : Investigar algoritmo y modificar perfiles a 8 para contemplar mas casos.
 def kmeans_old_students(df):
     X = preprocess_old_students_data(df)
 
