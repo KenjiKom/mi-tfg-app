@@ -68,7 +68,7 @@ def kmeans_old_students(df):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    kmeans = KMeans(n_clusters=4, random_state=42)
+    kmeans = KMeans(n_clusters=6, random_state=42)
     df['Cluster'] = kmeans.fit_predict(X_scaled)
 
     store_predictions_in_db(df, None, None, False)

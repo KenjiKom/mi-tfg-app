@@ -14,10 +14,12 @@ router.get('/alumnos', (req, res) => {
             u.Nombre AS Alumno,
             p.Nota_predicha,
             CASE 
-                WHEN p.Cluster = 'Perfil 3' THEN 'Notable'
-                WHEN p.Cluster = 'Perfil 2' THEN 'Sobresaliente'
-                WHEN p.Cluster = 'Perfil 1' THEN 'Insuficiente'
-                WHEN p.Cluster = 'Perfil 0' THEN 'Bajo / Nuevo Estudiante'
+                WHEN p.Cluster = 'Perfil 5' THEN 'Baja nota, muchos eventos'
+                WHEN p.Cluster = 'Perfil 4' THEN 'Baja nota, pocos eventos y baja constancia'
+                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y poca constancia'
+                WHEN p.Cluster = 'Perfil 2' THEN 'Alta nota, pocos eventos y mucha constancia'
+                WHEN p.Cluster = 'Perfil 1' THEN 'Alta nota, muchos eventos'
+                WHEN p.Cluster = 'Perfil 0' THEN 'Baja nota, pocos eventos y mucha constancia'
                 ELSE p.Cluster -- Por si hay otros perfiles no definidos
             END AS Cluster,
             p.Cluster_numero,
@@ -48,10 +50,12 @@ router.get('/predicciones-alumno', (req, res) => {
             a.Nombre AS Asignatura,
             p.Nota_predicha, 
             CASE 
-                WHEN p.Cluster = 'Perfil 3' THEN 'Notable'
-                WHEN p.Cluster = 'Perfil 2' THEN 'Sobresaliente'
-                WHEN p.Cluster = 'Perfil 1' THEN 'Insuficiente'
-                WHEN p.Cluster = 'Perfil 0' THEN 'Bajo / Nuevo Estudiante'
+                WHEN p.Cluster = 'Perfil 5' THEN 'Baja nota, muchos eventos'
+                WHEN p.Cluster = 'Perfil 4' THEN 'Baja nota, pocos eventos y baja constancia'
+                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y poca constancia'
+                WHEN p.Cluster = 'Perfil 2' THEN 'Alta nota, pocos eventos y mucha constancia'
+                WHEN p.Cluster = 'Perfil 1' THEN 'Alta nota, muchos eventos'
+                WHEN p.Cluster = 'Perfil 0' THEN 'Baja nota, pocos eventos y mucha constancia'
                 ELSE p.Cluster -- Por si hay otros perfiles no definidos
             END AS Cluster, 
             p.Cluster_numero
