@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { Header, Footer } from "../components/HeaderFooter.js";
+import { Pie } from 'react-chartjs-2';
 
 const ProfessorVisualization = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -190,23 +191,54 @@ const ProfessorVisualization = () => {
 
         {/* Gráficos de barras */}
         {selectedCurso && (
-          <div className="chart-container" style={{ display: 'flex', justifyContent: 'space-between', width: '80%' }}>
-            <div style={{ height: '300px', width: '48%' }}>
-              <h2>Notas Predichas de los Alumnos</h2>
-              <Bar data={barChartData} options={barChartOptions} />
-              {selectedNota !== null && (
-                <button onClick={() => setSelectedNota(null)}>Resetear Filtro de Nota</button>
-              )}
-            </div>
-            <div style={{ height: '300px', width: '48%' }}>
-              <h2>Perfiles de los Alumnos</h2>
-              <Bar data={perfilChartData} options={perfilChartOptions} />
-              {selectedPerfil !== null && (
-                <button onClick={() => setSelectedPerfil(null)}>Resetear Filtro de Perfil</button>
-              )}
-            </div>
-          </div>
-        )}
+  <div className="chart-container" style={{ display: 'flex', justifyContent: 'space-between', width: '80%' }}>
+    <div style={{ height: '300px', width: '48%' }}>
+      <h2>Notas Reales/Predichas</h2>
+      <Bar data={barChartData} options={barChartOptions} />
+      {selectedNota !== null && (
+        <button onClick={() => setSelectedNota(null)}>Resetear Filtro de Nota</button>
+      )}
+    </div>
+    <div style={{ height: '300px', width: '48%' }}>
+      <h2>Perfiles de los Alumnos</h2>
+      <Pie
+        data={{
+          labels: perfilChartData.labels,
+          datasets: [
+            {
+              data: perfilChartData.datasets[0].data,
+              backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40',
+              ],
+            },
+          ],
+        }}
+        options={{
+          plugins: {
+            legend: {
+              display: true,
+              position: 'right',
+            },
+          },
+          onClick: (evt, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              setSelectedPerfil(perfilChartData.labels[index]);
+            }
+          },
+        }}
+      />
+      {selectedPerfil !== null && (
+        <button onClick={() => setSelectedPerfil(null)}>Resetear Filtro de Perfil</button>
+      )}
+    </div>
+  </div>
+)}
         <br/><br/><br/><br/><br/><br/>
         {/* Tabla de alumnos */}
         {selectedCurso && (
