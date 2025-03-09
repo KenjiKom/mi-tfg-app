@@ -51,11 +51,11 @@ const ProfessorVisualization = () => {
 
   // Filtrar alumnos por asignatura, curso, nota seleccionada y perfil seleccionado
   const filteredAlumnos = alumnos.filter(alumno => {
-    const nota = Math.round(alumno.Nota_predicha);
+    const nota = Math.round(alumno.Nota_predicha / 10);
     return (
       (!selectedAsignatura || alumno.Asignatura === selectedAsignatura) &&
       (!selectedCurso || alumno.Curso === selectedCurso) &&
-      (!selectedNota || nota === selectedNota) &&
+      (selectedNota === null || nota === selectedNota) &&
       (!selectedPerfil || alumno.Cluster === selectedPerfil)
     );
   });
@@ -80,7 +80,7 @@ const ProfessorVisualization = () => {
   // Gráfico de barras para notas predichas
   const notaCounts = Array(11).fill(0);
   filteredAlumnos.forEach(alumno => {
-    const nota = Math.round(alumno.Nota_predicha);
+    const nota = Math.round(alumno.Nota_predicha / 10);;
     if (nota >= 0 && nota <= 10) {
       notaCounts[nota] += 1;
     }
@@ -106,14 +106,15 @@ const ProfessorVisualization = () => {
       },
     },
     onClick: (event, elements) => {
-      if (elements.length > 0) {
+      if (elements.length > 0 && elements[0].index !== undefined) {
         const index = elements[0].index;
-        setSelectedNota(index);
+        setSelectedNota(index ?? -1); // Asegurar que index=0 no se ignora
       } else {
         setSelectedNota(null);
       }
     },
   };
+  
 
   // Gráfico de barras para perfiles
   const perfilCounts = {};
@@ -229,16 +230,16 @@ const ProfessorVisualization = () => {
             if (elements.length > 0) {
               const index = elements[0].index;
               setSelectedPerfil(perfilChartData.labels[index]);
-            }
-          },
-        }}
-      />
-      {selectedPerfil !== null && (
-        <button onClick={() => setSelectedPerfil(null)}>Resetear Filtro de Perfil</button>
-      )}
-    </div>
-  </div>
-)}
+                }
+              },
+            }}
+            />
+              {selectedPerfil !== null && (
+                <button onClick={() => setSelectedPerfil(null)}>Resetear Filtro de Perfil</button>
+              )}
+            </div>
+          </div>
+        )}
         <br/><br/><br/><br/><br/><br/>
         {/* Tabla de alumnos */}
         {selectedCurso && (
@@ -256,7 +257,7 @@ const ProfessorVisualization = () => {
                 {currentAlumnos.map((alumno) => (
                   <tr key={alumno.id}>
                     <td>{alumno.Alumno}</td>
-                    <td>{alumno.Nota_predicha}</td>
+                    <td>{(alumno.Nota_predicha / 10).toFixed(2)}</td>
                     <td>{alumno.Cluster}</td>
                   </tr>
                 ))}
