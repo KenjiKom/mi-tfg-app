@@ -256,7 +256,7 @@ const ProfessorVisualization = () => {
                 {currentAlumnos.map((alumno) => (
                   <tr key={alumno.id}>
                     <td>{alumno.Alumno}</td>
-                    <td>{(alumno.Nota_predicha/10).toFixed(2)}</td>
+                    <td>{alumno.Nota_predicha}</td>
                     <td>{alumno.Cluster}</td>
                   </tr>
                 ))}
