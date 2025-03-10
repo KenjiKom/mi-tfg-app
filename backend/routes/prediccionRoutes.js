@@ -76,5 +76,90 @@ router.get('/predicciones-alumno', (req, res) => {
     });
 });
 
+router.get('/detalle_alumno', (req, res) => {
+    const { alumno, asignatura, curso } = req.query;
+
+    if (!alumno || !asignatura || !curso) {
+        console.error("Solicitud incorrecta: faltan parámetros");
+        return res.status(400).json({ error: "Faltan parámetros: alumno, asignatura o curso" });
+    }
+
+    console.log("Buscando id_matricula para:", { alumno, asignatura, curso });
+
+    const matriculaQuery = `
+        SELECT m.id AS id_matricula
+        FROM TFG.Matricula m
+        JOIN TFG.Usuario u ON m.id_usuario = u.id
+        JOIN TFG.Asignatura a ON m.id_asignatura = a.id
+        WHERE u.Nombre = ? AND a.Nombre = ? AND m.Curso = ?;
+    `;
+
+    db.query(matriculaQuery, [alumno, asignatura, curso], (err, matriculaResult) => {
+        if (err) {
+            console.error("Error en la consulta SQL:", err);
+            return res.status(500).json({ error: "Error interno del servidor" });
+        }
+
+        if (matriculaResult.length === 0) {
+            return res.status(404).json({ error: "No se encontró la matrícula del alumno" });
+        }
+
+        const id_matricula = matriculaResult[0].id_matricula;
+        console.log("Encontrado id_matricula:", id_matricula);
+
+        const alumnoQuery = `
+            SELECT 
+                u.Nombre AS Alumno, 
+                p.Nota_predicha, 
+                p.Cluster, 
+                p.Fecha,
+                a.Nombre AS Asignatura,
+                m.Curso
+            FROM TFG.Prediccion p
+            JOIN TFG.Matricula m ON p.id_matricula = m.id
+            JOIN TFG.Usuario u ON m.id_usuario = u.id
+            JOIN TFG.Asignatura a ON m.id_asignatura = a.id
+            WHERE p.id_matricula = ?;
+        `;
+
+        db.query(alumnoQuery, [id_matricula], (err, alumnoResult) => {
+            if (err) {
+                console.error("Error en la consulta SQL:", err);
+                return res.status(500).json({ error: "Error interno del servidor" });
+            }
+
+            if (alumnoResult.length === 0) {
+                return res.status(404).json({ error: "Alumno no encontrado o sin predicciones" });
+            }
+
+            const alumno = alumnoResult[0];
+            const eventosQuery = `
+                SELECT 
+                    Nombre, Afectado, Contexto, Componente, Evento, Descripción, Origen, Ip, Hora
+                FROM TFG.Evento
+                WHERE id_matricula = ?;
+            `;
+
+            db.query(eventosQuery, [id_matricula], (err, eventosResult) => {
+                if (err) {
+                    console.error("Error obteniendo eventos:", err);
+                    return res.status(500).json({ error: "Error interno del servidor" });
+                }
+
+                res.json({
+                    Alumno: alumno.Alumno,
+                    Nota_predicha: alumno.Nota_predicha,
+                    Cluster: alumno.Cluster,
+                    Fecha_prediccion: alumno.Fecha,
+                    Asignatura: alumno.Asignatura,
+                    Curso: alumno.Curso,
+                    Eventos: eventosResult.length,
+                    Eventos: eventosResult
+                });
+            });
+        });
+    });
+});
+
 
 module.exports = router;

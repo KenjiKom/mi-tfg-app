@@ -101,3 +101,34 @@ a {
   background-color: purple;
 }
 
+/* Popup con centrado */
+.modal-content {
+  width: 80%; /* Puedes ajustar el ancho según lo necesites */
+  max-width: 500px; /* Limita el tamaño máximo */
+  margin: 0 auto; /* Centra el modal */
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Si el contenido es más largo que el modal, aparecerá una barra de desplazamiento */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.modal-close-btn {
+  cursor: pointer;
+  font-size: 18px;
+  background: none;
+  border: none;
+  color: #888;
+  transition: color 0.3s;
+}
+
+.modal-close-btn:hover {
+  color: #333;
+}

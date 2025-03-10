@@ -5,6 +5,7 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { Header, Footer } from "../components/HeaderFooter.js";
 import { Pie } from 'react-chartjs-2';
+import Modal from 'react-modal';
 
 const ProfessorVisualization = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -14,6 +15,7 @@ const ProfessorVisualization = () => {
   const [selectedCurso, setSelectedCurso] = useState(null);
   const [selectedNota, setSelectedNota] = useState(null);
   const [selectedPerfil, setSelectedPerfil] = useState(null);
+  const [selectedAlumno, setSelectedAlumno] = useState(null);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5); // Número de alumnos por página
@@ -155,6 +157,27 @@ const ProfessorVisualization = () => {
     },
   };
 
+  // Informacion del alumno al clickear en el
+  const handleAlumnoClick = async (alumno) => {
+    if (!alumno.Alumno || !alumno.Asignatura || !alumno.Curso) {
+        console.error("Faltan datos para obtener la matrícula:", alumno);
+        return;
+    }
+
+    try {
+        const response = await axios.get("http://localhost:5000/predicciones/detalle_alumno", {
+            params: { 
+                alumno: alumno.Alumno, 
+                asignatura: alumno.Asignatura, 
+                curso: alumno.Curso 
+            },
+        });
+        setSelectedAlumno(response.data);
+    } catch (error) {
+        console.error("Error obteniendo detalles del alumno", error);
+    }
+  };
+
   return (
     <div className="teacher-dashboard">
       <Header />
@@ -255,8 +278,8 @@ const ProfessorVisualization = () => {
               </thead>
               <tbody>
                 {currentAlumnos.map((alumno) => (
-                  <tr key={alumno.id}>
-                    <td>{alumno.Alumno}</td>
+                  <tr key={alumno.id} onClick={() => handleAlumnoClick(alumno)}>
+                    <td>{alumno.Alumno}</td> 
                     <td>{(alumno.Nota_predicha / 10).toFixed(2)}</td>
                     <td>{alumno.Cluster}</td>
                   </tr>
@@ -264,7 +287,37 @@ const ProfessorVisualization = () => {
               </tbody>
             </table>
             <br/><br/>
+            
+            {/* Pop-up con informacion de alumno individual */}
+            <Modal isOpen={!!selectedAlumno} onRequestClose={() => setSelectedAlumno(null)}>
+            {selectedAlumno && (
+            <div className="modal-content">
+              <div className="modal-header">
+                <h2>Detalles del Alumno</h2>
+                  <button className="modal-close-btn" onClick={() => setSelectedAlumno(null)}>&times;</button>
+              </div>
+              <p><strong>Nombre:</strong> {selectedAlumno.Alumno}</p>
+              <p><strong>Asignatura:</strong> {selectedAlumno.Asignatura}</p>
+              <p><strong>Curso:</strong> {selectedAlumno.Curso}</p>
+              <p><strong>Nota Predicha:</strong> {selectedAlumno.Nota_predicha}</p>
+              <p><strong>Cluster:</strong> {selectedAlumno.Cluster}</p>
+              <p><strong>Fecha de Predicción:</strong> {selectedAlumno.Fecha_prediccion}</p>
+  
+              <h3>Eventos:</h3>
+              {Array.isArray(selectedAlumno.Eventos) ? (
+              selectedAlumno.Eventos.map((evento, index) => (
+              <div key={index}>
+                <p><strong>{evento.Nombre}</strong> - {evento.Evento}</p>
+              </div>
+              ))
+              ) : (
+                <p>No hay eventos registrados</p>
+              )}
+            </div>
+              )}
+            </Modal>
             {/* Paginación con flechas */}
+
             <div className="pagination-controls">
               <button onClick={prevPage} disabled={currentPage === 1}>
                 &larr; Anterior
