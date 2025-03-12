@@ -3,12 +3,14 @@ import '../styles/StudentVisualization.css';
 import axios from 'axios';
 import { Header, Footer } from "../components/HeaderFooter.js";
 
-const consejosPorPerfil = {
-  'Sobresaliente': 'Sigue así, mantén tus hábitos de estudio y ayuda a otros compañeros.',
-  'Riesgo de fracaso': 'Refuerza tu estudio, busca ayuda con los profesores y organiza mejor tu tiempo.',
-  'Notable': 'Puedes mejorar, intenta técnicas de estudio más eficientes y participa más en clase.',
-  'Bajo / Nuevo Estudiante': 'Adáptate al ritmo de estudio, explora los recursos disponibles y no dudes en preguntar.'
-};
+/*const consejosPorPerfil = {
+  'Baja nota, muchos eventos' : '',
+  'Baja nota, pocos eventos y baja constancia' : '',
+  'Alta nota, pocos eventos y baja constancia' : '',
+  'Alta nota, pocos eventos y mucha constancia' : '',
+  'Alta nota, muchos eventos' : 'Sigue así.',
+  'Baja nota, pocos eventos y mucha constancia' : ''
+};*/
 
 const StudentVisualization = () => {
   const [perfil, setPerfil] = useState(null);
@@ -18,8 +20,10 @@ const StudentVisualization = () => {
   const [cursos, setCursos] = useState([]);
   const [selectedAsignatura, setSelectedAsignatura] = useState(null);
   const [selectedCurso, setSelectedCurso] = useState(null);
+  const [eventos, setEventos] = useState([]); 
 
   const alumnoId = localStorage.getItem('id');
+  const alumnoName = localStorage.getItem('name');
 
   useEffect(() => {
     const fetchPredicciones = async () => {
@@ -31,12 +35,12 @@ const StudentVisualization = () => {
         if (response.data.length > 0) {
           setPredicciones(response.data);
 
-          // Extraer asignaturas y cursos únicos
           const asignaturasUnicas = [...new Set(response.data.map(item => item.Asignatura))];
           const cursosUnicos = [...new Set(response.data.map(item => item.Curso))];
 
           setAsignaturas(asignaturasUnicas);
           setCursos(cursosUnicos);
+
         } else {
           setError("No hay datos disponibles para mostrar.");
         }
@@ -49,6 +53,28 @@ const StudentVisualization = () => {
     fetchPredicciones();
   }, [alumnoId]);
 
+  useEffect(() => {
+    const fetchEventos = async () => {
+      if (selectedCurso && selectedAsignatura && alumnoName) {
+        try {
+          const response = await axios.get('http://localhost:5000/predicciones/detalle_alumno', {
+            params: {
+              alumno: alumnoName,
+              asignatura: selectedAsignatura, 
+              curso: selectedCurso 
+            }
+          });
+          setEventos(response.data.Eventos || []);
+        } catch (err) {
+          console.error("Error al obtener los eventos:", err);
+          setEventos([]); 
+        }
+      }
+    };
+
+    fetchEventos();
+  }, [selectedCurso, selectedAsignatura, alumnoName]); 
+
   // Filtrar predicciones por asignatura y curso
   const filteredPredicciones = predicciones.filter(prediccion => {
     return (
@@ -57,12 +83,12 @@ const StudentVisualization = () => {
     );
   });
 
-  // Actualizar el perfil cuando se selecciona un curso
+
   useEffect(() => {
     if (selectedCurso && filteredPredicciones.length > 0) {
-      setPerfil(filteredPredicciones[0].Cluster); // Tomamos el perfil del primer registro
+      setPerfil(filteredPredicciones[0].Cluster); 
     } else {
-      setPerfil(null); // Resetear el perfil si no hay curso seleccionado
+      setPerfil(null); 
     }
   }, [selectedCurso, filteredPredicciones]);
 
@@ -100,12 +126,16 @@ const StudentVisualization = () => {
           </div>
         )}
 
-        {/* Perfil académico (oculto inicialmente) */}
+        {/* Perfil académico y eventos (oculto inicialmente) */}
         {selectedCurso && perfil && (
           <div className="student-profile">
             <h2>Tu Perfil Académico</h2>
             <p><strong>Perfil:</strong> {perfil}</p>
-            <p>{consejosPorPerfil[perfil] || 'Sigue esforzándote y consulta con tu profesor si necesitas ayuda.'}</p>
+            {/*<p>{consejosPorPerfil[perfil] || 'Sigue esforzándote y consulta con tu profesor si necesitas ayuda.'}</p>*/}
+            <p>Para esta predicción, nuestro algoritmo ha tenido en cuenta: <br></br> 
+            el número de interacciones relevantes con la asignatura en el campus virtual y la constancia de estas interacciones a lo largo del curso.</p>
+            {/* Mostrar eventos */}
+            <p><strong>Número de interacciones relevantes:</strong> {eventos.length}</p>
           </div>
         )}
       </main>

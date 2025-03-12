@@ -18,7 +18,7 @@ const ProfessorVisualization = () => {
   const [selectedAlumno, setSelectedAlumno] = useState(null);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5); // Número de alumnos por página
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const profesorId = localStorage.getItem('id');
 
@@ -110,7 +110,7 @@ const ProfessorVisualization = () => {
     onClick: (event, elements) => {
       if (elements.length > 0 && elements[0].index !== undefined) {
         const index = elements[0].index;
-        setSelectedNota(index ?? -1); // Asegurar que index=0 no se ignora
+        setSelectedNota(index ?? -1); 
       } else {
         setSelectedNota(null);
       }
@@ -289,35 +289,36 @@ const ProfessorVisualization = () => {
             <br/><br/>
             
             {/* Pop-up con informacion de alumno individual */}
-            <Modal isOpen={!!selectedAlumno} onRequestClose={() => setSelectedAlumno(null)}>
+            <Modal isOpen={!!selectedAlumno} onRequestClose={() => setSelectedAlumno(null)} className="modal-content">
             {selectedAlumno && (
             <div className="modal-content">
               <div className="modal-header">
                 <h2>Detalles del Alumno</h2>
-                  <button className="modal-close-btn" onClick={() => setSelectedAlumno(null)}>&times;</button>
+                <button className="modal-close-btn" onClick={() => setSelectedAlumno(null)}>&times;</button>
               </div>
               <p><strong>Nombre:</strong> {selectedAlumno.Alumno}</p>
               <p><strong>Asignatura:</strong> {selectedAlumno.Asignatura}</p>
               <p><strong>Curso:</strong> {selectedAlumno.Curso}</p>
-              <p><strong>Nota Predicha:</strong> {selectedAlumno.Nota_predicha}</p>
-              <p><strong>Cluster:</strong> {selectedAlumno.Cluster}</p>
+              <p><strong>Nota Actual/Predicha:</strong> {selectedAlumno.Nota_predicha}</p>
               <p><strong>Fecha de Predicción:</strong> {selectedAlumno.Fecha_prediccion}</p>
-  
+              <p>El algoritmo de prediccion ha determinado el perfil del estudiante en base a su interacción con el campus virtual.</p>
+              <p>Número de interacciones relevantes: <strong>{selectedAlumno.Eventos ? selectedAlumno.Eventos.length : 0}</strong></p>
+
               <h3>Eventos:</h3>
               {Array.isArray(selectedAlumno.Eventos) ? (
               selectedAlumno.Eventos.map((evento, index) => (
               <div key={index}>
-                <p><strong>{evento.Nombre}</strong> - {evento.Evento}</p>
+                <p><strong>{evento.Evento}</strong> - {evento.Hora}</p>
               </div>
               ))
               ) : (
                 <p>No hay eventos registrados</p>
               )}
-            </div>
+              </div>
               )}
             </Modal>
-            {/* Paginación con flechas */}
 
+            {/* Paginación con flechas */}
             <div className="pagination-controls">
               <button onClick={prevPage} disabled={currentPage === 1}>
                 &larr; Anterior

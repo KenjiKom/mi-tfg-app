@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Header, Footer } from "../components/HeaderFooter";
 import '../styles/Common.css';
+import { useEffect } from 'react';
+import axios from 'axios';
 import Pautas from '../documents/Pautas.pdf';
 
 const ImportDataPage = () => {
@@ -10,7 +12,9 @@ const ImportDataPage = () => {
   const [fileNotas, setFileNotas] = useState(null);
   const [fileEventos, setFileEventos] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showPopup, setShowPopup] = useState(false); // Estado para controlar el popup
+  const [showPopup, setShowPopup] = useState(false);
+  const [asignaturas, setAsignaturas] = useState([]);
+  const [cursos, setCursos] = useState([]);
 
   const handleUsuariosChange = (e) => {
     setFileUsuarios(e.target.files[0]);
@@ -79,6 +83,16 @@ const ImportDataPage = () => {
     setLoading(false);
   };
 
+  useEffect(() => {
+    axios.get(`http://localhost:5000/asignaturas/todas-asignaturas`)
+        .then(response => setAsignaturas(response.data))
+        .catch(error => console.error('Error cargando asignaturas:', error));
+
+    axios.get('http://localhost:5000/asignaturas/todos-cursos')
+        .then(response => setCursos(response.data))
+        .catch(error => console.error('Error cargando cursos:', error));
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-pink-50">
       <Header />
@@ -94,17 +108,42 @@ const ImportDataPage = () => {
 
         <iframe src={Pautas} width="100%" height="600px"></iframe>
 
-        <p><br/>Siguiendo las pautas descritas en el documento anterior, suba los archivos en el siguiente contenedor:</p>
+        <p><strong>Plantillas de los archivos necesarios:</strong></p>
+        <label>Usuarios:</label>
+        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Usuarios.xlsx"}>
+          Descargar
+        </button>
+        <br></br>
+        <label>Notas:</label>
+        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Notas.xlsx"}>
+          Descargar
+        </button>
+        <br></br>
+        <label>Eventos:</label>
+        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Usuarios.xlsx"}>
+          Descargar
+        </button>
+
+        <p><br/>Siguiendo las pautas descritas en el documento anterior, suba los archivos en los siguientes contenedores:</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          <label>Asignaturas</label>
+          <select multiple onChange={handleAsignaturasChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
+            {asignaturas.map((asignatura) => (
+              <option key={asignatura.id} value={asignatura.id}>{asignatura.nombre}</option>
+            ))}
+          </select>
+          
+          <label>Curso</label>
+          <select multiple onChange={handleCursoChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
+            {cursos.map((curso, index) => (
+              <option key={index} value={curso.nombre}>{curso.nombre}</option>
+            ))}
+          </select>
+          
           <label>Usuarios.xlsx</label>
           <input type="file" onChange={handleUsuariosChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
-          
-          <label>Asignaturas.xlsx</label>
-          <input type="file" onChange={handleAsignaturasChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
-          
-          <label>Curso.xlsx</label>
-          <input type="file" onChange={handleCursoChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
           
           <label>Notas.xlsx</label>
           <input type="file" onChange={handleNotasChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
@@ -116,8 +155,10 @@ const ImportDataPage = () => {
           <button type="submit" className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login">
             Subir Archivos
           </button>
+
         </form>
-        {/* Popup de carga */}
+
+      {/* Popup de carga */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">

@@ -16,7 +16,7 @@ router.get('/alumnos', (req, res) => {
             CASE 
                 WHEN p.Cluster = 'Perfil 5' THEN 'Baja nota, muchos eventos'
                 WHEN p.Cluster = 'Perfil 4' THEN 'Baja nota, pocos eventos y baja constancia'
-                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y poca constancia'
+                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y baja constancia'
                 WHEN p.Cluster = 'Perfil 2' THEN 'Alta nota, pocos eventos y mucha constancia'
                 WHEN p.Cluster = 'Perfil 1' THEN 'Alta nota, muchos eventos'
                 WHEN p.Cluster = 'Perfil 0' THEN 'Baja nota, pocos eventos y mucha constancia'
@@ -52,7 +52,7 @@ router.get('/predicciones-alumno', (req, res) => {
             CASE 
                 WHEN p.Cluster = 'Perfil 5' THEN 'Baja nota, muchos eventos'
                 WHEN p.Cluster = 'Perfil 4' THEN 'Baja nota, pocos eventos y baja constancia'
-                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y poca constancia'
+                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y baja constancia'
                 WHEN p.Cluster = 'Perfil 2' THEN 'Alta nota, pocos eventos y mucha constancia'
                 WHEN p.Cluster = 'Perfil 1' THEN 'Alta nota, muchos eventos'
                 WHEN p.Cluster = 'Perfil 0' THEN 'Baja nota, pocos eventos y mucha constancia'

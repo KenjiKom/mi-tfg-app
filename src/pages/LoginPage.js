@@ -27,7 +27,8 @@ const LoginPage = () => {
   
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('role', role);
-          localStorage.setItem('id', user.id)
+          localStorage.setItem('id', user.id);
+          localStorage.setItem('name', user.Nombre);
   
           navigate('/');
           window.location.reload(); // Forzar la recarga para aplicar los cambios
