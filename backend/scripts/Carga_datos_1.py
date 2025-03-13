@@ -10,7 +10,7 @@ DB_NAME = "TFG"
 
 engine = create_engine(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
 
-def cargar_datos_a_bd(usuarios_path, asignaturas_path):
+def cargar_datos_a_bd(usuarios_path):
     # Cargar usuarios
     usuarios = pd.read_excel(usuarios_path)
     usuarios.columns = usuarios.columns.str.strip()
@@ -35,25 +35,10 @@ def cargar_datos_a_bd(usuarios_path, asignaturas_path):
     else:
         print("No se encontraron usuarios nuevos para cargar.")
 
-    # Cargar asignaturas
-    asignaturas = pd.read_excel(asignaturas_path)
-    asignaturas.columns = asignaturas.columns.str.strip()
-
-    asignaturas_existentes = pd.read_sql("SELECT Nombre FROM Asignatura", con=engine)
-    asignaturas_nuevas = asignaturas[~asignaturas["Nombre"].isin(asignaturas_existentes["Nombre"])]
-
-    if not asignaturas_nuevas.empty:
-        asignaturas_nuevas.to_sql("Asignatura", con=engine, if_exists="append", index=False)
-        print("Asignaturas nuevas cargadas correctamente.")
-    else:
-        print("No se encontraron asignaturas nuevas para cargar.")
-
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Uso: python cargar_datos.py <usuarios.xlsx> <asignaturas.xlsx>")
+    if len(sys.argv) < 2:
+        print("Uso: python cargar_datos.py <usuarios.xlsx>")
         sys.exit(1)
 
     usuarios_path = sys.argv[1]
-    asignaturas_path = sys.argv[2]
-
-    cargar_datos_a_bd(usuarios_path, asignaturas_path)
+    cargar_datos_a_bd(usuarios_path)

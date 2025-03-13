@@ -33,22 +33,18 @@ router.get('/cursos', async (req, res) => {
   });
 });
 
-router.get('/todos-cursos', async (req, res) => {
-  try {
-      const [rows] = await pool.query('SELECT DISTINCT Curso FROM TFG.Matricula');
-      res.json(rows.map(row => ({ nombre: row.Curso })));
-  } catch (error) {
-      res.status(500).json({ error: 'Error obteniendo cursos' });
-  }
+router.get('/todos-cursos', (req, res) => {
+  db.query('SELECT Nombre FROM TFG.Curso', (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results.map(row => ({ Nombre: row.Nombre })));
+  });
 });
 
-router.get('/todas-asignaturas', async (req, res) => {
-  try {
-      const [rows] = await pool.query('SELECT id, Nombre FROM TFG.Asignatura');
-      res.json(rows);
-  } catch (error) {
-      res.status(500).json({ error: 'Error obteniendo asignaturas' });
-  }
+router.get('/todas-asignaturas', (req, res) => {
+  db.query('SELECT Nombre FROM TFG.Asignatura', (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results.map(row => ({ Nombre: row.Nombre})));
+  });
 });
 
 module.exports = router;

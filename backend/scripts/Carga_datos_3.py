@@ -10,8 +10,7 @@ DB_NAME = "TFG"
 
 engine = create_engine(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
 
-def cargar_datos_a_bd(curso_path, eventos_path):
-    
+def cargar_datos_a_bd(curso, eventos_path):
     eventos_excel = pd.read_excel(eventos_path)
 
     # Convertir manualmente la columna 'Hora' a datetime
@@ -26,8 +25,6 @@ def cargar_datos_a_bd(curso_path, eventos_path):
     usuarios_db = pd.read_sql("SELECT id, Nombre FROM Usuario", con=engine)
     matricula_db = pd.read_sql("SELECT * FROM Matricula", con=engine)
     eventos_db = pd.read_sql("SELECT * FROM Evento", con=engine)
-    curso_actual = pd.read_excel(curso_path)
-    curso = curso_actual.iloc[0, 0]
 
     eventos = []
 
@@ -38,6 +35,7 @@ def cargar_datos_a_bd(curso_path, eventos_path):
         else:
             continue  
 
+        # Filtrar matrículas del usuario en el curso proporcionado
         matriculas_usuario = matricula_db[(matricula_db['id_usuario'] == id_usuario) & (matricula_db['Curso'] == curso)]
         if matriculas_usuario.empty:
             continue  
@@ -69,16 +67,16 @@ def cargar_datos_a_bd(curso_path, eventos_path):
 
     if not eventos_df.empty:
         eventos_df.to_sql('Evento', con=engine, if_exists='append', index=False)
-        print(f"Se han insertado {len(eventos_df)} registros nuevos en la tabla Eventos.")
+        print(f"Se han insertado {len(eventos_df)} registros nuevos en la tabla Evento.")
     else:
-        print("No se encontraron registros nuevos para insertar en la tabla Eventos.")
+        print("No se encontraron registros nuevos para insertar en la tabla Evento.")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Uso: python Carga_datos_3.py <curso.xlsx> <eventos.xlsx>")
+    if len(sys.argv) < 3:
+        print("Uso: python Carga_datos_3.py <curso> <eventos.xlsx>")
         sys.exit(1)
 
-    curso_path = sys.argv[1]
+    curso = sys.argv[1]  # Ahora recibe el curso como parámetro directamente
     eventos_path = sys.argv[2]
-    
-    cargar_datos_a_bd(curso_path, eventos_path)
+
+    cargar_datos_a_bd(curso, eventos_path)

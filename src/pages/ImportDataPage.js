@@ -7,8 +7,8 @@ import Pautas from '../documents/Pautas.pdf';
 
 const ImportDataPage = () => {
   const [fileUsuarios, setFileUsuarios] = useState(null);
-  const [fileAsignaturas, setFileAsignaturas] = useState(null);
-  const [fileCurso, setFileCurso] = useState(null);
+  const [fileAsignatura, setFileAsignatura] = useState("");
+  const [fileCurso, setFileCurso] = useState("");
   const [fileNotas, setFileNotas] = useState(null);
   const [fileEventos, setFileEventos] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -20,12 +20,12 @@ const ImportDataPage = () => {
     setFileUsuarios(e.target.files[0]);
   };
 
-  const handleAsignaturasChange = (e) => {
-    setFileAsignaturas(e.target.files[0]);
+  const handleAsignaturaChange = (e) => {
+    setFileAsignatura(e.target.value);
   };
 
   const handleCursoChange = (e) => {
-    setFileCurso(e.target.files[0]);
+    setFileCurso(e.target.value);
   };
 
   const handleNotasChange = (e) => {
@@ -38,26 +38,26 @@ const ImportDataPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!fileUsuarios || !fileAsignaturas || !fileCurso || !fileNotas || !fileEventos) {
+    if (!fileUsuarios || !fileNotas || !fileEventos || fileAsignatura === "" || fileCurso === "") {
       alert("Por favor, selecciona todos los archivos.");
       return;
     }
-
+  
     setShowPopup(true); // Mostrar el popup
-
+  
     const formData = new FormData();
     formData.append("usuarios", fileUsuarios);
-    formData.append("asignaturas", fileAsignaturas);
-    formData.append("curso", fileCurso);
     formData.append("notas", fileNotas);
     formData.append("eventos", fileEventos);
-
+    formData.append("asignatura", fileAsignatura); // clave en singular
+    formData.append("curso", fileCurso); 
+  
     try {
       const response = await fetch("http://localhost:5000/scripts/upload-and-run", {
         method: "POST",
         body: formData,
       });
-
+  
       const data = await response.json();
       alert(data.message);
     } catch (error) {
@@ -67,6 +67,7 @@ const ImportDataPage = () => {
       setShowPopup(false); // Ocultar el popup cuando termine la operación
     }
   };
+  
 
   const handleRunScript = async () => {
     setLoading(true);
@@ -128,17 +129,17 @@ const ImportDataPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          <label>Asignaturas</label>
-          <select multiple onChange={handleAsignaturasChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
+        <label>Asignatura</label>
+          <select onChange={handleAsignaturaChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
             {asignaturas.map((asignatura) => (
-              <option key={asignatura.id} value={asignatura.id}>{asignatura.nombre}</option>
+            <option key={asignatura.id} value={asignatura.Nombre}>{asignatura.Nombre}</option>
             ))}
           </select>
-          
-          <label>Curso</label>
-          <select multiple onChange={handleCursoChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
+
+        <label>Curso</label>
+          <select onChange={handleCursoChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
             {cursos.map((curso, index) => (
-              <option key={index} value={curso.nombre}>{curso.nombre}</option>
+            <option key={index} value={curso.Nombre}>{curso.Nombre}</option>
             ))}
           </select>
           
