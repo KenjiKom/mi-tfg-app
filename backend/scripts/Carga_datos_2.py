@@ -89,8 +89,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     usuarios_path = sys.argv[1]
-    curso = sys.argv[2]
-    asignatura = sys.argv[3]
+    curso = sys.argv[3]
+    asignatura = sys.argv[2]
     notas_path = sys.argv[4]
 
     cargar_datos_a_bd(usuarios_path, curso, asignatura, notas_path)

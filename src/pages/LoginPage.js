@@ -20,10 +20,10 @@ const LoginPage = () => {
         const user = response.data;
   
         if (user) {
-          // Determinar el rol basado en los valores booleanos
-          let role = "student"; // Valor por defecto
+          
+          let role = "student";
           if (user.is_teacher) role = "teacher";
-          if (user.is_admin) role = "admin"; // Si hay admin, tiene prioridad
+          if (user.is_admin) role = "admin"; 
   
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('role', role);
@@ -31,7 +31,7 @@ const LoginPage = () => {
           localStorage.setItem('name', user.Nombre);
   
           navigate('/');
-          window.location.reload(); // Forzar la recarga para aplicar los cambios
+          window.location.reload();
         } else {
           setError("Error: No se recibió una respuesta válida del servidor.");
         }

@@ -77,6 +77,16 @@ const MainPage = () => {
           Ir al Dash de Estudiante
         </a>
       </div>
+      ) : role === "admin" ? (
+        <div>
+          <p className="text-lg font-semibold text-gray-700">Acciones disponibles para administradores:</p>
+          <a
+            href="/Administration"
+            className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transition"
+          >
+            Ir al Panel de Administración
+          </a>
+        </div>
       ) : null
         ) : (
         <div>

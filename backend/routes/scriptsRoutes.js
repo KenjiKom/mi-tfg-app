@@ -25,7 +25,7 @@ router.post(
     { name: "eventos", maxCount: 1 },
   ]),
   (req, res) => {
-    const { curso, asignatura } = req.body;
+    const { asignatura, curso } = req.body;
 
     if (!curso || !asignatura) {
       return res.status(400).json({ message: "Curso y asignatura son obligatorios." });
@@ -44,7 +44,7 @@ router.post(
     const cargaDatos3Script = path.join(__dirname, "..", "scripts", "Carga_datos_3.py");
 
     // Ejecutar primero Carga_datos_1.py
-    const command1 = `python ${cargaDatos1Script} ${usuariosPath} "${asignatura}"`;
+    const command1 = `python ${cargaDatos1Script} ${usuariosPath}`;
 
     exec(command1, (error, stdout, stderr) => {
       if (error) {

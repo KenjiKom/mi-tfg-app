@@ -43,13 +43,13 @@ const ImportDataPage = () => {
       return;
     }
   
-    setShowPopup(true); // Mostrar el popup
+    setShowPopup(true); 
   
     const formData = new FormData();
     formData.append("usuarios", fileUsuarios);
     formData.append("notas", fileNotas);
     formData.append("eventos", fileEventos);
-    formData.append("asignatura", fileAsignatura); // clave en singular
+    formData.append("asignatura", fileAsignatura); 
     formData.append("curso", fileCurso); 
   
     try {
@@ -129,18 +129,28 @@ const ImportDataPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-        <label>Asignatura</label>
-          <select onChange={handleAsignaturaChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
-            {asignaturas.map((asignatura) => (
-            <option key={asignatura.id} value={asignatura.Nombre}>{asignatura.Nombre}</option>
-            ))}
+          <label>Asignatura</label>
+          <select 
+            value={fileAsignatura} 
+            onChange={handleAsignaturaChange} 
+            className="border-2 border-pink-300 px-4 py-2 rounded-md"
+          >
+            <option value="">Selecciona una asignatura</option> {/* Opción por defecto */}
+              {asignaturas.map((asignatura) => (
+              <option key={asignatura.id} value={asignatura.Nombre}>{asignatura.Nombre}</option>
+              ))}
           </select>
 
-        <label>Curso</label>
-          <select onChange={handleCursoChange} className="border-2 border-pink-300 px-4 py-2 rounded-md">
-            {cursos.map((curso, index) => (
-            <option key={index} value={curso.Nombre}>{curso.Nombre}</option>
-            ))}
+          <label>Curso</label>
+          <select 
+            value={fileCurso} 
+            onChange={handleCursoChange} 
+            className="border-2 border-pink-300 px-4 py-2 rounded-md"
+          >     
+            <option value="">Selecciona un curso</option> {/* Opción por defecto */}
+              {cursos.map((curso, index) => (
+              <option key={index} value={curso.Nombre}>{curso.Nombre}</option>
+              ))}
           </select>
           
           <label>Usuarios.xlsx</label>

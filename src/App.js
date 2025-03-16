@@ -11,6 +11,7 @@ import MainPage from './pages/MainPage';
 import AboutUs from './pages/AboutUs';
 import FAQ from './pages/FAQ';
 import ImportDataPage from './pages/ImportDataPage';
+import Administration from './pages/Administration';
 
 const App = () => {
     return (
@@ -56,6 +57,15 @@ const App = () => {
                     element={
                         <ProtectedRoute allowedRoles="student">
                             <StudentVisualization />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route 
+                    path="/Administration" 
+                    element={
+                        <ProtectedRoute allowedRoles="admin">
+                            <Administration />
                         </ProtectedRoute>
                     }
                 />

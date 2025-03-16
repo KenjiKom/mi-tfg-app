@@ -19,7 +19,7 @@ def connect_db():
 def get_current_course():
     conn = connect_db()
     query = """
-    SELECT MAX(Curso) FROM Matricula 
+    SELECT MAX(Curso) FROM TFG.Matricula 
     """
     curso = pd.read_sql(query, conn)
     conn.close()

@@ -16,6 +16,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/Error" replace />;
     }
 
+    const isAdmin = user.is_admin;
+
+    if(allowedRoles == "admin" && !isAdmin) {
+        return <Navigate to="/Error" replace />;
+    }
+    
     return children;
 };
 
