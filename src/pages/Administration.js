@@ -1,137 +1,95 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import '../styles/Common.css';
+import { useNavigate } from 'react-router-dom';
+import { Header, Footer } from "../components/HeaderFooter.js";
 
-const UsuarioTable = () => {
-  const [usuarios, setUsuarios] = useState([]);
-  const [currentUsuario, setCurrentUsuario] = useState(null);
-  const [nombre, setNombre] = useState('');
-  const [contrasena, setContrasena] = useState('');
-  const [isTeacher, setIsTeacher] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+const Administration = () => {
+  const navigate = useNavigate();
 
-  // Obtener todos los usuarios al cargar el componente
-  useEffect(() => {
-    axios.get('http://localhost:5000/admin/usuarios')
-      .then(response => setUsuarios(response.data))
-      .catch(error => console.error('Error al obtener los usuarios:', error));
-  }, []);
-
-  // Manejar el borrado de un usuario
-  const handleDelete = (id) => {
-    axios.delete(`http://localhost:5000/admin/usuarios/${id}`)
-      .then(() => {
-        // Eliminar el usuario de la lista de usuarios
-        setUsuarios(usuarios.filter(usuario => usuario.id !== id));
-      })
-      .catch(error => console.error('Error al eliminar el usuario:', error));
+  const handleNavigationUser = () => {
+    navigate('/AdminUser');
   };
 
-  // Manejar la edición de un usuario
-  const handleEdit = (usuario) => {
-    setCurrentUsuario(usuario);
-    setNombre(usuario.Nombre);
-    setContrasena(usuario.Contrasena);
-    setIsTeacher(usuario.is_teacher);
-    setIsAdmin(usuario.is_admin);
+  const handleNavigationAsig = () => {
+    navigate('/AdminAsig');
   };
 
-  // Manejar el formulario de agregar o editar
-  const handleSubmit = () => {
-    const usuarioData = { Nombre: nombre, Contrasena: contrasena, is_teacher: isTeacher, is_admin: isAdmin };
-
-    if (currentUsuario) {
-      // Actualizar usuario
-      axios.put(`http://localhost:5000/admin/usuarios/${currentUsuario.id}`, usuarioData)
-        .then(response => {
-          setUsuarios(usuarios.map(usuario => 
-            usuario.id === currentUsuario.id ? response.data : usuario
-          ));
-          resetForm();
-        })
-        .catch(error => console.error('Error al actualizar el usuario:', error));
-    } else {
-      // Crear nuevo usuario
-      axios.post('http://localhost:5000/admin/usuarios', usuarioData)
-        .then(response => {
-          setUsuarios([...usuarios, response.data]);
-          resetForm();
-        })
-        .catch(error => console.error('Error al agregar el usuario:', error));
-    }
+  const handleNavigationCourse = () => {
+    navigate('/AdminCourse');
   };
 
-  // Resetear el formulario
-  const resetForm = () => {
-    setCurrentUsuario(null);
-    setNombre('');
-    setContrasena('');
-    setIsTeacher(false);
-    setIsAdmin(false);
+  const handleNavigationMat = () => {
+    navigate('/AdminMat');
+  };
+
+  const handleNavigationEvent = () => {
+    navigate('/AdminEvent');
+  };
+  
+  const handleNavigationPred = () => {
+    navigate('/AdminPred');
   };
 
   return (
+    <div className="flex flex-col min-h-screen bg-pink-50">
     <div>
-      <h2>Gestión de Usuarios</h2>
-      
-      {/* Formulario de agregar/editar usuario */}
-      <input
-        type="text"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        placeholder="Nombre"
-      />
-      <input
-        type="password"
-        value={contrasena}
-        onChange={(e) => setContrasena(e.target.value)}
-        placeholder="Contraseña"
-      />
-      <label>
-        Profesor
-        <input
-          type="checkbox"
-          checked={isTeacher}
-          onChange={() => setIsTeacher(!isTeacher)}
-        />
-      </label>
-      <label>
-        Administrador
-        <input
-          type="checkbox"
-          checked={isAdmin}
-          onChange={() => setIsAdmin(!isAdmin)}
-        />
-      </label>
-      <button onClick={handleSubmit}>
-        {currentUsuario ? 'Actualizar' : 'Agregar'}
+      <Header />
+      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content">
+      <h1>CRUD para administradores</h1>
+      <p>Bienvenido. En esta página podrás gestionar la información alojada en nuestra base de datos. ¿Qué desea consultar?</p>
+
+      <button 
+        onClick={handleNavigationUser} 
+        className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors"
+        class = "boton-login"
+      >
+        Usuarios
       </button>
 
-      {/* Tabla de usuarios */}
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Es Profesor</th>
-            <th>Es Administrador</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((usuario) => (
-            <tr key={usuario.id}>
-              <td>{usuario.Nombre}</td>
-              <td>{usuario.is_teacher ? 'Sí' : 'No'}</td>
-              <td>{usuario.is_admin ? 'Sí' : 'No'}</td>
-              <td>
-                <button onClick={() => handleEdit(usuario)}>Editar</button>
-                <button onClick={() => handleDelete(usuario.id)}>Eliminar</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <button 
+        onClick={handleNavigationAsig} 
+        className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors"
+        class = "boton-login"
+      >
+        Asignaturas
+      </button>
+
+      <button 
+        onClick={handleNavigationCourse} 
+        className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors"
+        class = "boton-login"
+      >
+        Cursos
+      </button>
+
+      <button 
+        onClick={handleNavigationMat} 
+        className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors"
+        class = "boton-login"
+      >
+        Matrículas
+      </button>
+
+      <button 
+        onClick={handleNavigationEvent} 
+        className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors"
+        class = "boton-login"
+      >
+        Eventos
+      </button>
+
+      <button 
+        onClick={handleNavigationPred} 
+        className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors"
+        class = "boton-login"
+      >
+        Predicciones
+      </button>
+      </main>
+      <Footer />
+    </div>
     </div>
   );
 };
 
-export default UsuarioTable;
+export default Administration;

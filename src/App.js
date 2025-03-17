@@ -12,6 +12,12 @@ import AboutUs from './pages/AboutUs';
 import FAQ from './pages/FAQ';
 import ImportDataPage from './pages/ImportDataPage';
 import Administration from './pages/Administration';
+import AdminUser from './pages/AdminUser';
+import AdminAsig from './pages/AdminAsig';
+import AdminCourse from './pages/AdminCourse';
+import AdminMat from './pages/AdminMat';
+import AdminEvent from './pages/AdminEvent';
+import AdminPred from './pages/AdminPred';
 
 const App = () => {
     return (
@@ -35,6 +41,7 @@ const App = () => {
                         </ProtectedRoute>
                     } 
                 />
+
                 <Route 
                     path="/StudentDash" 
                     element={
@@ -43,6 +50,7 @@ const App = () => {
                         </ProtectedRoute>
                     } 
                 />
+
                 <Route 
                     path="/ProfessorVisualization" 
                     element={
@@ -66,6 +74,60 @@ const App = () => {
                     element={
                         <ProtectedRoute allowedRoles="admin">
                             <Administration />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route 
+                    path="/AdminUser" 
+                    element={
+                        <ProtectedRoute allowedRoles="admin">
+                            <AdminUser />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route 
+                    path="/AdminAsig" 
+                    element={
+                        <ProtectedRoute allowedRoles="admin">
+                            <AdminAsig />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route 
+                    path="/AdminCourse" 
+                    element={
+                        <ProtectedRoute allowedRoles="admin">
+                            <AdminCourse />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route 
+                    path="/AdminMat" 
+                    element={
+                        <ProtectedRoute allowedRoles="admin">
+                            <AdminMat />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route 
+                    path="/AdminEvent" 
+                    element={
+                        <ProtectedRoute allowedRoles="admin">
+                            <AdminEvent />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route 
+                    path="/AdminPred" 
+                    element={
+                        <ProtectedRoute allowedRoles="admin">
+                            <AdminPred />
                         </ProtectedRoute>
                     }
                 />
