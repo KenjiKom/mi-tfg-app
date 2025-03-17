@@ -140,4 +140,50 @@ router.delete('/cursos/:id', async (req, res) => {
   }
 });
 
+// // // // // MATRICULAS // // // // //
+
+// Ruta para obtener todos los cursos
+router.get('/matriculas', async (req, res) => {
+  try {
+      db.query(`SELECT * FROM Matricula`, (err, results) => {
+          if (err) return res.status(500).json({ error: err.message });
+          res.json(results);
+      });
+  } catch (error) {
+      res.status(500).send('Error al obtener las matriculas');
+  }
+});
+
+// Ruta para agregar un nuevo curso
+router.post('/matriculas', async (req, res) => {
+  const { id_usuario, id_asignatura, Curso, Nota } = req.body;
+  try {
+      const result = await db.query('INSERT INTO Matricula (id_usuario, id_asignatura, Curso, Nota) VALUES (?)', [id_usuario, id_asignatura, Curso, Nota]);
+      res.status(201).json(result);
+  } catch (error) {
+      res.status(500).send('Error al agregar las matriculas');
+  }
+});
+
+// Ruta para actualizar un curso
+router.put('/matriculas/:id', async (req, res) => {
+  const { id_usuario, id_asignatura, Curso, Nota } = req.body;
+  try {
+      const result = await db.query('UPDATE Matricula SET id_usuario = ?, id_asignatura = ?, Curso = ?, Nota = ? WHERE id = ?', [id_usuario, id_asignatura, Curso, Nota, req.params.id]);
+      res.json(result);
+  } catch (error) {
+      res.status(500).send('Error al actualizar la matricula');
+  }
+});
+
+// Ruta para eliminar un curso
+router.delete('/matriculas/:id', async (req, res) => {
+  try {
+      await db.query('DELETE FROM Matricula WHERE id = ?', [req.params.id]);
+      res.status(204).send();
+  } catch (error) {
+      res.status(500).send('Error al eliminar la matricula');
+  }
+});
+
 module.exports = router;
