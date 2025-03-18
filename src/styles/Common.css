@@ -97,6 +97,7 @@ a {
 
 .boton-login {
   width: 140px;
+  margin-right:16px;
   height: auto;
   background-color: purple;
 }

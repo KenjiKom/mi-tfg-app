@@ -45,7 +45,7 @@ const Administration = () => {
       >
         Usuarios
       </button>
-
+      
       <button 
         onClick={handleNavigationAsig} 
         className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors"

@@ -10,6 +10,8 @@ const AdminUser = () => {
   const [contrasena, setContrasena] = useState('');
   const [isTeacher, setIsTeacher] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Obtener todos los usuarios al cargar el componente
   useEffect(() => {
@@ -71,72 +73,112 @@ const AdminUser = () => {
     setIsAdmin(false);
   };
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUsuarios = usuarios.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(usuarios.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-pink-50">
-    <div>
-    <Header />
-    <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content"></main>
-      <h2>Gestión de Usuarios</h2>
-      
-      {/* Formulario de agregar/editar usuario */}
-      <input
-        type="text"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        placeholder="Nombre"
-      />
-      <input
-        type="password"
-        value={contrasena}
-        onChange={(e) => setContrasena(e.target.value)}
-        placeholder="Contraseña"
-      />
-      <label>
-        Profesor
-        <input
-          type="checkbox"
-          checked={isTeacher}
-          onChange={() => setIsTeacher(!isTeacher)}
-        />
-      </label>
-      <label>
-        Administrador
-        <input
-          type="checkbox"
-          checked={isAdmin}
-          onChange={() => setIsAdmin(!isAdmin)}
-        />
-      </label>
-      <button onClick={handleSubmit}>
-        {currentUsuario ? 'Actualizar' : 'Agregar'}
-      </button>
+      <Header />
+      <main className="flex-grow flex items-start justify-between p-6" id="content">
+        <div className="w-1/3 bg-white p-4 rounded shadow-md">
+          <h2>Gestión de Usuarios</h2>
+          <input 
+            type="text" 
+            value={nombre} 
+            onChange={(e) => setNombre(e.target.value)} 
+            placeholder="Nombre" 
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <input 
+            type="password" 
+            value={contrasena} 
+            onChange={(e) => setContrasena(e.target.value)} 
+            placeholder="Contraseña" 
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <div className="mb-2">
+            <label>
+              Profesor
+              <input 
+                type="checkbox" 
+                checked={isTeacher} 
+                onChange={() => setIsTeacher(!isTeacher)} 
+              />
+            </label>
+          </div>
+          <div className="mb-2">
+            <label>
+              Administrador
+              <input 
+                type="checkbox" 
+                checked={isAdmin} 
+                onChange={() => setIsAdmin(!isAdmin)} 
+              />
+            </label>
+          </div>
+          <button 
+            onClick={handleSubmit} 
+            className="w-full p-2 bg-blue-500 text-white rounded">
+            {currentUsuario ? 'Actualizar' : 'Agregar'}
+          </button>
+        </div>
 
-      {/* Tabla de usuarios */}
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Es Profesor</th>
-            <th>Es Administrador</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((usuario) => (
-            <tr key={usuario.id}>
-              <td>{usuario.Nombre}</td>
-              <td>{usuario.is_teacher ? 'Sí' : 'No'}</td>
-              <td>{usuario.is_admin ? 'Sí' : 'No'}</td>
-              <td>
-                <button onClick={() => handleEdit(usuario)}>Editar</button>
-                <button onClick={() => handleDelete(usuario.id)}>Eliminar</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    <Footer />
-    </div>
+        <div className="w-2/3 pl-6">
+          <table className="min-w-full bg-white rounded shadow-md">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Es Profesor</th>
+                <th>Es Administrador</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentUsuarios.map((usuario) => (
+                <tr key={usuario.id}>
+                  <td>{usuario.Nombre}</td>
+                  <td>{usuario.is_teacher ? 'Sí' : 'No'}</td>
+                  <td>{usuario.is_admin ? 'Sí' : 'No'}</td>
+                  <td>
+                    <button onClick={() => handleEdit(usuario)} className="px-4 py-2 bg-yellow-500 text-white rounded mr-2">Editar</button>
+                    <button onClick={() => handleDelete(usuario.id)} className="px-4 py-2 bg-red-500 text-white rounded">Eliminar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="flex justify-center space-x-4 mt-4">
+            <button 
+              className="bg-gray-300 px-3 py-1 rounded" 
+              onClick={handlePreviousPage} 
+              disabled={currentPage === 1}>
+              Anterior
+            </button>
+            <button 
+              className="bg-gray-300 px-3 py-1 rounded" 
+              onClick={handleNextPage} 
+              disabled={currentPage === totalPages}>
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 };
