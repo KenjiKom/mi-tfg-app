@@ -2,45 +2,73 @@
 
 /* Asegurar que solo afecta a la página de administración */
 .admin-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px;
-    max-width: 1200px;
-    margin: auto;
-  }
-  
-  /* Estilos para la sección de agregar y buscar usuarios */
-  .admin-form {
-    width: 30%;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Estilos para la tabla de usuarios */
-  .admin-table {
-    width: 65%;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 80px;
+}
+
+.admin-form {
+  flex: 1;
+  max-width: 300px;
+}
+
+.admin-table-container {
+  flex: 2;
+  width: 100%;
+}
   
   /* Botones */
-  .admin-button {
-    cursor: pointer;
-    padding: 8px 16px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-right: 8px;
-  }
+.admin-button {
+  cursor: pointer;
+  padding: 8px 16px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-right: 8px;
+}
   
-  .admin-button:hover {
-    background-color: #0056b3;
-  }
+.admin-button:hover {
+  background-color: #0056b3;
+}
+
+.admin-search { 
+  padding: 10px 20px;
+  width: auto; /* Evita que se estiren */
+  min-width: 50px;
+}
   
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centra los elementos horizontalmente */
+  gap: 10px; /* Espacio entre los botones y el texto */
+  margin-top: 10px;
+}
+
+.pagination-button {
+  padding: 10px 20px; /* Ajusta el tamaño del botón */
+  font-size: 14px;
+  width: auto; /* Evita que se estiren */
+  min-width: 80px; /* Establece un ancho mínimo */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  text-align: center; /* Asegura que el texto esté centrado */
+}
+
+.pagination-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  font-weight: bold;
+}
+

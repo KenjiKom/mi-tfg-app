@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Header, Footer } from "../components/HeaderFooter.js";
-import '../styles/Common.css';
+import '../styles/Common.css';  
+import '../styles/Admin.css';  
 
 const AdminAsig = () => {
   const [asignaturas, setAsignaturas] = useState([]);
   const [currentAsignatura, setCurrentAsignatura] = useState(null);
   const [nombre, setNombre] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Obtener todas las asignaturas al cargar el componente
   useEffect(() => {
@@ -61,25 +65,46 @@ const AdminAsig = () => {
     setNombre('');
   };
 
+  // Filtrar asignaturas según el término de búsqueda
+  const filteredAsignaturas = asignaturas.filter(asignatura => 
+    asignatura.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentAsignaturas = filteredAsignaturas.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredAsignaturas.length / itemsPerPage);
+
   return (
-    <div className="flex flex-col min-h-screen bg-pink-50">
-      <Header />
-      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id="content">
+    <main id="content" className="admin-container">
+      <Header/>
+      {/* Formulario a la izquierda */}
+      <div className="admin-form">
         <h2>Gestión de Asignaturas</h2>
-        
-        {/* Formulario de agregar/editar asignatura */}
-        <input
-          type="text"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          placeholder="Nombre de la asignatura"
+        <input 
+          type="text" 
+          value={nombre} 
+          onChange={(e) => setNombre(e.target.value)} 
+          placeholder="Nombre de la asignatura" 
         />
-        <button onClick={handleSubmit}>
+        <button className="admin-button" onClick={handleSubmit}>
           {currentAsignatura ? 'Actualizar' : 'Agregar'}
         </button>
+      </div>
 
-        {/* Tabla de asignaturas */}
-        <table>
+      {/* Tabla de asignaturas a la derecha */}
+      <div className="admin-table-container">
+        <div className="admin-search">
+          <input 
+            type="text" 
+            placeholder="Buscar asignatura..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+          />
+        </div>
+
+        <table className="admin-table">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -87,20 +112,39 @@ const AdminAsig = () => {
             </tr>
           </thead>
           <tbody>
-            {asignaturas.map((asignatura) => (
+            {currentAsignaturas.map((asignatura) => (
               <tr key={asignatura.id}>
                 <td>{asignatura.Nombre}</td>
                 <td>
-                  <button onClick={() => handleEdit(asignatura)}>Editar</button>
-                  <button onClick={() => handleDelete(asignatura.id)}>Eliminar</button>
+                  <button className="admin-button" onClick={() => handleEdit(asignatura)}>Editar</button>
+                  <button className="admin-button" onClick={() => handleDelete(asignatura.id)}>Eliminar</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </main>
-      <Footer />
-    </div>
+
+        {/* Controles de paginación */}
+        <div className="pagination">
+          <button 
+            className="pagination-button" 
+            onClick={() => setCurrentPage(currentPage - 1)} 
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </button>
+          <span>{currentPage} - {totalPages}</span>
+          <button 
+            className="pagination-button" 
+            onClick={() => setCurrentPage(currentPage + 1)} 
+            disabled={currentPage === totalPages}
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+      <Footer/>
+    </main>
   );
 };
 
