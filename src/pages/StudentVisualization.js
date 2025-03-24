@@ -133,9 +133,9 @@ const StudentVisualization = () => {
             <p><strong>Perfil:</strong> {perfil}</p>
             {/*<p>{consejosPorPerfil[perfil] || 'Sigue esforzándote y consulta con tu profesor si necesitas ayuda.'}</p>*/}
             <p>Para esta predicción, nuestro algoritmo ha tenido en cuenta: <br></br> 
-            el número de interacciones relevantes con la asignatura en el campus virtual y la constancia de estas interacciones a lo largo del curso.</p>
+            el número de actividades relevantes con la asignatura en el campus virtual y la constancia de estas interacciones a lo largo del curso.</p>
             {/* Mostrar eventos */}
-            <p><strong>Número de interacciones relevantes:</strong> {eventos.length}</p>
+            <p><strong>Número de actividades relevantes:</strong> {eventos.length}</p>
           </div>
         )}
       </main>

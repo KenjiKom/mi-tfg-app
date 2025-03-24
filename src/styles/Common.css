@@ -102,3 +102,22 @@ a {
   background-color: purple;
 }
 
+.export-excel-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.export-excel-btn:hover {
+  background-color: #45a049;
+}
+
+.export-excel-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

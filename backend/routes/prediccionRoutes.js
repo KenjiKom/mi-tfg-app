@@ -42,7 +42,7 @@ router.get('/alumnos', (req, res) => {
 
 // Ruta para obtener las predicciones de un alumno
 router.get('/predicciones-alumno', (req, res) => {
-    const alumnoId = req.query.alumnoId; // El ID del alumno desde la solicitud 
+    const alumnoId = req.query.alumnoId;
 
     const query = `
         SELECT 

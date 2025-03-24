@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import '../styles/ProfessorVisualization.css';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
@@ -6,6 +6,7 @@ import { Chart as ChartJS } from 'chart.js/auto';
 import { Header, Footer } from "../components/HeaderFooter.js";
 import { Pie } from 'react-chartjs-2';
 import Modal from 'react-modal';
+import * as XLSX from 'xlsx';
 
 const ProfessorVisualization = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -18,9 +19,89 @@ const ProfessorVisualization = () => {
   const [selectedAlumno, setSelectedAlumno] = useState(null);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [searchTerm, setSearchTerm] = useState('');
 
   const profesorId = localStorage.getItem('id');
+
+  // Función para manejar el ordenamiento
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Filtrar alumnos por asignatura, curso, nota seleccionada y perfil seleccionado
+  const filteredAlumnos = useMemo(() => {
+    return alumnos.filter(alumno => {
+      const nota = Math.round(alumno.Nota_predicha / 10);
+      return (
+        (!selectedAsignatura || alumno.Asignatura === selectedAsignatura) &&
+        (!selectedCurso || alumno.Curso === selectedCurso) &&
+        (selectedNota === null || nota === selectedNota) &&
+        (!selectedPerfil || alumno.Cluster === selectedPerfil)
+      );
+    });
+  }, [alumnos, selectedAsignatura, selectedCurso, selectedNota, selectedPerfil]);
+
+  // Función para ordenar los alumnos
+  const sortedAlumnos = useMemo(() => {
+    let sortableAlumnos = [...filteredAlumnos];
+    if (sortConfig.key) {
+      sortableAlumnos.sort((a, b) => {
+        // Manejo especial para nota predicha
+        if (sortConfig.key === 'Nota_predicha') {
+          const aValue = a.Nota_predicha / 10;
+          const bValue = b.Nota_predicha / 10;
+          if (aValue < bValue) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          }
+          if (aValue > bValue) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
+          return 0;
+        }
+        
+        // Ordenamiento normal para otros campos
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableAlumnos;
+  }, [filteredAlumnos, sortConfig]);
+
+  // Función para filtrar por búsqueda
+  const searchedAlumnos = useMemo(() => {
+    if (!searchTerm) return sortedAlumnos;
+    return sortedAlumnos.filter(alumno => 
+      alumno.Alumno.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [sortedAlumnos, searchTerm]);
+
+  // Paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentAlumnos = searchedAlumnos.slice(indexOfFirstItem, indexOfLastItem);
+
+  const nextPage = () => {
+    if (currentPage < Math.ceil(searchedAlumnos.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   // Obtener los alumnos y extraer asignaturas y cursos
   useEffect(() => {
@@ -50,34 +131,6 @@ const ProfessorVisualization = () => {
 
     fetchAlumnos();
   }, [profesorId]);
-
-  // Filtrar alumnos por asignatura, curso, nota seleccionada y perfil seleccionado
-  const filteredAlumnos = alumnos.filter(alumno => {
-    const nota = Math.round(alumno.Nota_predicha / 10);
-    return (
-      (!selectedAsignatura || alumno.Asignatura === selectedAsignatura) &&
-      (!selectedCurso || alumno.Curso === selectedCurso) &&
-      (selectedNota === null || nota === selectedNota) &&
-      (!selectedPerfil || alumno.Cluster === selectedPerfil)
-    );
-  });
-
-  // Paginación
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAlumnos = filteredAlumnos.slice(indexOfFirstItem, indexOfLastItem);
-
-  const nextPage = () => {
-    if (currentPage < Math.ceil(filteredAlumnos.length / itemsPerPage)) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
 
   // Gráfico de barras para notas predichas
   const notaCounts = Array(11).fill(0);
@@ -178,6 +231,28 @@ const ProfessorVisualization = () => {
     }
   };
 
+  const exportToExcel = () => {
+    // Preparar los datos para exportar
+    const dataToExport = searchedAlumnos.map(alumno => ({
+      'Alumno': alumno.Alumno,
+      'Nota Predicha': (alumno.Nota_predicha / 10).toFixed(2),
+      'Perfil': alumno.Cluster,
+      'Asignatura': alumno.Asignatura,
+      'Curso': alumno.Curso
+    }));
+
+    // Crear hoja de trabajo
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    
+    // Crear libro de trabajo
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Alumnos");
+    
+    // Generar archivo y descargar
+    const fileName = `alumnos_${selectedAsignatura || 'todas_asignaturas'}_${selectedCurso || 'todos_cursos'}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+
   return (
     <div className="teacher-dashboard">
       <Header />
@@ -265,27 +340,64 @@ const ProfessorVisualization = () => {
         )}
         <br/><br/><br/><br/><br/><br/>
         {/* Tabla de alumnos */}
-        {selectedCurso && (
-          <div className="alumnos-table">
-            <h2>Alumnos del curso {selectedCurso}</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Alumno</th>
-                  <th>Nota Predicha</th>
-                  <th>Perfil</th>
+      {selectedCurso && (
+        
+        <div className="alumnos-table">
+          <h2>Alumnos del curso {selectedCurso}</h2>
+          
+          {/* Barra de búsqueda */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Buscar alumno..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Resetear a la primera página al buscar
+              }}
+            />
+          </div>
+          <br></br>
+          <button 
+              onClick={exportToExcel}
+              className="export-excel-btn"
+              disabled={searchedAlumnos.length === 0}
+            >
+              Exportar a Excel
+            </button>
+          <table>
+            <thead>
+              <tr>
+                <th onClick={() => requestSort('Alumno')}>
+                  Alumno
+                  {sortConfig.key === 'Alumno' && (
+                    <span>{sortConfig.direction === 'ascending' ? ' ↑' : ' ↓'}</span>
+                  )}
+                </th>
+                <th onClick={() => requestSort('Nota_predicha')}>
+                  Nota Predicha
+                  {sortConfig.key === 'Nota_predicha' && (
+                    <span>{sortConfig.direction === 'ascending' ? ' ↑' : ' ↓'}</span>
+                  )}
+                </th>
+                <th onClick={() => requestSort('Cluster')}>
+                  Perfil
+                  {sortConfig.key === 'Cluster' && (
+                    <span>{sortConfig.direction === 'ascending' ? ' ↑' : ' ↓'}</span>
+                  )}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentAlumnos.map((alumno) => (
+                <tr key={alumno.id} onClick={() => handleAlumnoClick(alumno)}>
+                  <td>{alumno.Alumno}</td> 
+                  <td>{(alumno.Nota_predicha / 10).toFixed(2)}</td>
+                  <td>{alumno.Cluster}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {currentAlumnos.map((alumno) => (
-                  <tr key={alumno.id} onClick={() => handleAlumnoClick(alumno)}>
-                    <td>{alumno.Alumno}</td> 
-                    <td>{(alumno.Nota_predicha / 10).toFixed(2)}</td>
-                    <td>{alumno.Cluster}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
             <br/><br/>
             
             {/* Pop-up con informacion de alumno individual */}
@@ -301,10 +413,10 @@ const ProfessorVisualization = () => {
               <p><strong>Curso:</strong> {selectedAlumno.Curso}</p>
               <p><strong>Nota Actual/Predicha:</strong> {selectedAlumno.Nota_predicha}</p>
               <p><strong>Fecha de Predicción:</strong> {selectedAlumno.Fecha_prediccion}</p>
-              <p>El algoritmo de prediccion ha determinado el perfil del estudiante en base a su interacción con el campus virtual.</p>
-              <p>Número de interacciones relevantes: <strong>{selectedAlumno.Eventos ? selectedAlumno.Eventos.length : 0}</strong></p>
+              <p>El algoritmo de prediccion ha determinado el perfil del estudiante en base a las actividades registradas en el campus virtual.</p>
+              <p>Número de actividades relevantes: <strong>{selectedAlumno.Eventos ? selectedAlumno.Eventos.length : 0}</strong></p>
 
-              <h3>Eventos:</h3>
+              <h3>Actividades:</h3>
               {Array.isArray(selectedAlumno.Eventos) ? (
               selectedAlumno.Eventos.map((evento, index) => (
               <div key={index}>
