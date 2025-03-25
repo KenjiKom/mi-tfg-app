@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import '../styles/ProfessorVisualization.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { Header, Footer } from "../components/HeaderFooter.js";
@@ -22,6 +23,7 @@ const ProfessorVisualization = () => {
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   const profesorId = localStorage.getItem('id');
 
@@ -253,6 +255,10 @@ const ProfessorVisualization = () => {
     XLSX.writeFile(wb, fileName);
   };
 
+  const handleSendMessage = (alumnoNombre) => {
+    navigate(`/ProfessorMsg/${alumnoNombre}`); 
+  };
+
   return (
     <div className="teacher-dashboard">
       <Header />
@@ -415,6 +421,13 @@ const ProfessorVisualization = () => {
               <p><strong>Fecha de Predicción:</strong> {selectedAlumno.Fecha_prediccion}</p>
               <p>El algoritmo de prediccion ha determinado el perfil del estudiante en base a las actividades registradas en el campus virtual.</p>
               <p>Número de actividades relevantes: <strong>{selectedAlumno.Eventos ? selectedAlumno.Eventos.length : 0}</strong></p>
+
+              <button 
+                onClick={() => handleSendMessage(selectedAlumno.Alumno)} 
+                className="send-message-btn"
+              >
+              Enviar mensaje al alumno
+              </button> 
 
               <h3>Actividades:</h3>
               {Array.isArray(selectedAlumno.Eventos) ? (

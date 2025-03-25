@@ -6,6 +6,7 @@ const asignaturaRoutes = require('./routes/asignaturaRoutes');
 const prediccionRoutes = require('./routes/prediccionRoutes');
 const scriptsRoutes = require('./routes/scriptsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const mensajeRoutes = require('./routes/mensajeRoutes');
 
 const app = express();
 const PORT = 5000;
@@ -27,6 +28,7 @@ app.use('/asignaturas', asignaturaRoutes);
 app.use('/predicciones', prediccionRoutes);
 app.use('/scripts', scriptsRoutes); 
 app.use('/admin', adminRoutes); 
+app.use('/mensajes', mensajeRoutes); 
 
 app.get('/', (req, res) => {
     res.send('API funcionando correctamente');

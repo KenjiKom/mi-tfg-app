@@ -27,5 +27,13 @@ router.get('/login', (req, res) => {
     );
 });
 
+router.get('/usuario', async (req, res) => {
+    const nombre =  req.query.nombreAlumno;
+    db.query('SELECT * FROM TFG.Usuario WHERE Nombre LIKE ?', [nombre], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
 
 module.exports = router;

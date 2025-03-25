@@ -18,6 +18,7 @@ import AdminCourse from './pages/AdminCourse';
 import AdminMat from './pages/AdminMat';
 import AdminEvent from './pages/AdminEvent';
 import AdminPred from './pages/AdminPred';
+import ProfessorMsg from './pages/ProfessorMsg';
 
 const App = () => {
     return (
@@ -60,6 +61,16 @@ const App = () => {
                     }
                     
                 />  
+
+                <Route 
+                    path="/ProfessorMsg/:alumnoNombre"
+                    element={
+                        <ProtectedRoute allowedRoles="teacher">
+                            <ProfessorMsg />
+                        </ProtectedRoute>
+                    }
+                />  
+
                 <Route 
                     path="/StudentVisualization" 
                     element={
