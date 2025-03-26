@@ -61,9 +61,9 @@ const ProfessorMsg = () => {
       setSuccess(true);
       setFormData({ asunto: '', texto: '' });
       
-      // Redirigir después de 2 segundos
+      
       setTimeout(() => {
-        navigate(-1); // Volver a la página anterior
+        navigate(-1);
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Error al enviar el mensaje');

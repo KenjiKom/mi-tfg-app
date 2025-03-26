@@ -102,7 +102,6 @@ router.get('/detalle_alumno', (req, res) => {
         }
 
         const id_matricula = matriculaResult[0].id_matricula;
-        console.log("Encontrado id_matricula:", id_matricula);
 
         const alumnoQuery = `
             SELECT 
