@@ -40,12 +40,12 @@ router.get('/lista/:id_usuario_receptor', async (req, res) => {
       const { id_usuario_receptor } = req.params;
 
       if (!id_usuario_receptor) {
-          return res.status(400).json({ message: 'Falta el ID del estudiante' });
+          return res.status(400).json({ message: 'Falta el ID del receptor' });
       }
 
       const query = `
           SELECT m.id, m.id_usuario_emisor, m.id_usuario_receptor, m.asunto, m.texto, m.fecha_envio, 
-                 p.Nombre AS nombre_profesor
+                 p.Nombre AS nombre_emisor
           FROM Mensaje m
           JOIN Usuario p ON m.id_usuario_emisor = p.id
           WHERE m.id_usuario_receptor = ? 

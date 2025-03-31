@@ -121,7 +121,7 @@ const ImportDataPage = () => {
         </button>
         <br></br>
         <label>Eventos:</label>
-        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Usuarios.xlsx"}>
+        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Eventos.xlsx"}>
           Descargar
         </button>
 

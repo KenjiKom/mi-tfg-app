@@ -36,7 +36,7 @@ const MainPage = () => {
   }, []);
 
   useEffect(() => {
-    if ((role === "student" || role == "teacher") && user?.id) {
+    if ((role === "student" || role === "teacher") && user?.id) {
       obtenerMensajes(user.id);
     }
   }, [role, user]);
@@ -99,6 +99,75 @@ const MainPage = () => {
     }
   };
 
+  // Función para renderizar la sección de mensajes (reutilizable)
+  const renderMessagesSection = () => (
+    <div className="messages-container">
+      <div className="messages-header">
+        <h2 className="messages-title">Tus mensajes</h2>
+      </div>
+      
+      {loading ? (
+        <div className="loading-messages">
+          <div className="loading-spinner"></div>
+          Cargando mensajes...
+        </div>
+      ) : error ? (
+        <div className="error-messages">
+          <svg className="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          {error}
+          <button 
+            onClick={() => user?.id && obtenerMensajes(user.id)} 
+            className="retry-button"
+          >
+            Reintentar
+          </button>
+        </div>
+      ) : (
+        <div className="messages-list-container">
+          {mensajes.length > 0 ? (
+            <ul className="messages-list">
+              {mensajes.map((mensaje) => (
+                <li 
+                  key={mensaje.id || Math.random()} 
+                  className="message-item"
+                  onClick={() => handleMensajeClick(mensaje)}
+                >
+                  <div className="message-header">
+                    <div>
+                      <p className="message-subject">
+                        {mensaje.asunto || "Sin asunto"}
+                      </p>
+                      <p className="message-sender">
+                        De: {mensaje.nombre_emisor || "Desconocido"}
+                      </p>
+                    </div>
+                    <div className="message-date">
+                      {new Date(mensaje.fecha_envio).toLocaleDateString() || "Fecha desconocida"}
+                    </div>
+                  </div>
+                  {mensaje.contenido && (
+                    <p className="message-preview">
+                      {mensaje.contenido.substring(0, 100)}...
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="empty-messages">
+              <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              No tienes mensajes en tu bandeja de entrada.
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="page-container">
       <Header />
@@ -134,6 +203,7 @@ const MainPage = () => {
                   Importar Datos
                 </a>
               </div>
+              {renderMessagesSection()}
             </div>
           ) : role === "admin" ? (
             <div className="actions-section">
@@ -142,9 +212,7 @@ const MainPage = () => {
                 Ir al Panel de Administración
               </a>
             </div>
-          ) : null}
-
-          {role === "student" && (
+          ) : role === "student" ? (
             <div className="student-section">
               <div className="student-actions">
                 <p className="actions-title">Acciones disponibles para estudiantes:</p>
@@ -152,75 +220,11 @@ const MainPage = () => {
                   Ir al Dash de Estudiante
                 </a>
               </div>
-              
-              <div className="messages-container">
-                <div className="messages-header">
-                  <h2 className="messages-title">Tus mensajes</h2>
-                </div>
-                
-                {loading ? (
-                  <div className="loading-messages">
-                    <div className="loading-spinner"></div>
-                    Cargando mensajes...
-                  </div>
-                ) : error ? (
-                  <div className="error-messages">
-                    <svg className="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    {error}
-                    <button 
-                      onClick={() => user?.id && obtenerMensajes(user.id)} 
-                      className="retry-button"
-                    >
-                      Reintentar
-                    </button>
-                  </div>
-                ) : (
-                  <div className="messages-list-container">
-                    {mensajes.length > 0 ? (
-                      <ul className="messages-list">
-                        {mensajes.map((mensaje) => (
-                          <li 
-                            key={mensaje.id || Math.random()} 
-                            className="message-item"
-                            onClick={() => handleMensajeClick(mensaje)}
-                          >
-                            <div className="message-header">
-                              <div>
-                                <p className="message-subject">
-                                  {mensaje.asunto || "Sin asunto"}
-                                </p>
-                                <p className="message-sender">
-                                  De: {mensaje.nombre_profesor || "Desconocido"}
-                                </p>
-                              </div>
-                              <div className="message-date">
-                                {new Date(mensaje.fecha_envio).toLocaleDateString() || "Fecha desconocida"}
-                              </div>
-                            </div>
-                            {mensaje.contenido && (
-                              <p className="message-preview">
-                                {mensaje.contenido.substring(0, 100)}...
-                              </p>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div className="empty-messages">
-                        <svg className="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        No tienes mensajes en tu bandeja de entrada.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              {renderMessagesSection()}
             </div>
-          )}
+          ) : null}
         </div>
+        
       </main>
       <Footer />
 
@@ -246,7 +250,8 @@ const MainPage = () => {
                 
                 <div className="message-info-compact">
                   <p className="info-item">
-                    <strong>De:</strong> {selectedMensaje.nombre_profesor || "Desconocido"}
+                    <strong>De:</strong>
+                       {selectedMensaje.nombre_emisor || "Desconocido"}
                   </p>
                   <p className="info-item">
                     <strong>Fecha:</strong> {new Date(selectedMensaje.fecha_envio).toLocaleString() || "Fecha desconocida"}

@@ -11,7 +11,7 @@ DB_NAME = "TFG"
 engine = create_engine(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}")
 
 def cargar_datos_a_bd(usuarios_path):
-    # Cargar usuarios
+
     usuarios = pd.read_excel(usuarios_path)
     usuarios.columns = usuarios.columns.str.strip()
 
@@ -24,7 +24,7 @@ def cargar_datos_a_bd(usuarios_path):
         raise ValueError("El archivo de usuarios no contiene la columna 'Contrasena'.")
 
     usuarios["is_teacher"] = usuarios.get("is_teacher", "").fillna("").apply(lambda x: True if x == "Y" else False)
-    usuarios["is_admin"] = usuarios.get("is_admin", "").fillna("").apply(lambda x: True if x == "Y" else False)
+    # usuarios["is_admin"] = usuarios.get("is_admin", "").fillna("").apply(lambda x: True if x == "Y" else False)
 
     usuarios_existentes = pd.read_sql("SELECT Nombre FROM Usuario", con=engine)
     usuarios_nuevos = usuarios[~usuarios["Nombre"].isin(usuarios_existentes["Nombre"])]
