@@ -52,6 +52,7 @@ a {
   text-align: center;
   line-height: var(--footer-height);
   position: fixed;
+  display: center;
   bottom: 0;
   left: 0;
   box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);
@@ -64,8 +65,8 @@ a {
 }
 
 .breadcrumb li {
-  display: inline-block;
-  font-size: 20px;
+  display: center;
+  font-size: 17px;
 }
 .breadcrumb li::after {
   content: "  ";

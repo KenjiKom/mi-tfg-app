@@ -193,7 +193,8 @@ const MainPage = () => {
               </a>
             </div>
           ) : role === "teacher" ? (
-            <div className="actions-section">
+            <div className="student-section">
+              <div className="student-actions">
               <p className="actions-title">Acciones disponibles para profesores:</p>
               <div className="buttons-container">
                 <a href="/ProfessorDash" className="action-button">
@@ -202,6 +203,7 @@ const MainPage = () => {
                 <a href="/import-data" className="action-button">
                   Importar Datos
                 </a>
+              </div>
               </div>
               {renderMessagesSection()}
             </div>
@@ -227,8 +229,9 @@ const MainPage = () => {
         
       </main>
       <Footer />
-
+      
       {/* Modal/Popup para mostrar el mensaje completo */}
+      
       {showModal && selectedMensaje && (
         <div className="message-modal-overlay">
           <div className="message-modal">
