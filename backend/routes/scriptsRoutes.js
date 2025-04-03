@@ -98,7 +98,7 @@ router.post(
 );
 
 router.post("/prediccion-script", (req, res) => {
-  const predictionScript = path.join(__dirname, "..", "scripts", "Prediccion.py");
+  const predictionScript = path.join(__dirname, "..", "scripts", "New_Prediccion.py");
   const command1 = `python ${predictionScript}`;
 
   exec(command1, (error, stderr, stdoutP) => {

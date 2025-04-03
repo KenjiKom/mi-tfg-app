@@ -13,12 +13,10 @@ router.get('/alumnos', (req, res) => {
             u.Nombre AS Alumno,
             p.Nota_predicha,
             CASE 
-                WHEN p.Cluster = 'Perfil 5' THEN 'Baja nota, muchos eventos'
-                WHEN p.Cluster = 'Perfil 4' THEN 'Baja nota, pocos eventos y baja constancia'
-                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y baja constancia'
-                WHEN p.Cluster = 'Perfil 2' THEN 'Alta nota, pocos eventos y mucha constancia'
-                WHEN p.Cluster = 'Perfil 1' THEN 'Alta nota, muchos eventos'
-                WHEN p.Cluster = 'Perfil 0' THEN 'Baja nota, pocos eventos y mucha constancia'
+                WHEN p.Cluster = 'Perfil 4' THEN 'Nota suspensa, poca actividad'
+                WHEN p.Cluster = 'Perfil 3' THEN 'Nota suspensa, mucha actividad'
+                WHEN p.Cluster = 'Perfil 2' THEN 'Nota aprobada, poca actividad'
+                WHEN p.Cluster = 'Perfil 1' THEN 'Nota aprobada, mucha actividad'
                 ELSE p.Cluster -- Por si hay otros perfiles no definidos
             END AS Cluster,
             p.Cluster_numero,
@@ -49,12 +47,10 @@ router.get('/predicciones-alumno', (req, res) => {
             a.Nombre AS Asignatura,
             p.Nota_predicha, 
             CASE 
-                WHEN p.Cluster = 'Perfil 5' THEN 'Baja nota, muchos eventos'
-                WHEN p.Cluster = 'Perfil 4' THEN 'Baja nota, pocos eventos y baja constancia'
-                WHEN p.Cluster = 'Perfil 3' THEN 'Alta nota, pocos eventos y baja constancia'
-                WHEN p.Cluster = 'Perfil 2' THEN 'Alta nota, pocos eventos y mucha constancia'
-                WHEN p.Cluster = 'Perfil 1' THEN 'Alta nota, muchos eventos'
-                WHEN p.Cluster = 'Perfil 0' THEN 'Baja nota, pocos eventos y mucha constancia'
+                WHEN p.Cluster = 'Perfil 4' THEN 'Nota suspensa, poca actividad'
+                WHEN p.Cluster = 'Perfil 3' THEN 'Nota suspensa, mucha actividad'
+                WHEN p.Cluster = 'Perfil 2' THEN 'Nota aprobada, poca actividad'
+                WHEN p.Cluster = 'Perfil 1' THEN 'Nota aprobada, mucha actividad'
                 ELSE p.Cluster -- Por si hay otros perfiles no definidos
             END AS Cluster, 
             p.Cluster_numero

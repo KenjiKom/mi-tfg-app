@@ -3,15 +3,6 @@ import '../styles/StudentVisualization.css';
 import axios from 'axios';
 import { Header, Footer } from "../components/HeaderFooter.js";
 
-/*const consejosPorPerfil = {
-  'Baja nota, muchos eventos' : '',
-  'Baja nota, pocos eventos y baja constancia' : '',
-  'Alta nota, pocos eventos y baja constancia' : '',
-  'Alta nota, pocos eventos y mucha constancia' : '',
-  'Alta nota, muchos eventos' : 'Sigue así.',
-  'Baja nota, pocos eventos y mucha constancia' : ''
-};*/
-
 const StudentVisualization = () => {
   const [perfil, setPerfil] = useState(null);
   const [error, setError] = useState(null);

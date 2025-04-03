@@ -8,7 +8,7 @@ const StudentDash = () => {
   const navigate = useNavigate();
 
   const handleNavigation = () => {
-    navigate('/StudentVisualization'); // Redirige a la vista de predicciones del alumno
+    navigate('/StudentVisualization');
   };
 
   return (
