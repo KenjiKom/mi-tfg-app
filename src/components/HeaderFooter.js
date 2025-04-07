@@ -24,21 +24,20 @@ export const Header = () => {
   };
 
   return (
-    <header id="header" className="text-gray-800 p-4 flex justify-between items-center border-b-2 border-gray-300 shadow-md bg-white opacity-95 fixed top-0 w-full z-50">
-      {/* Contenedor del menú principal */}
-      <nav>
-        <ul className="flex space-x-4">
-          <img src={logo} alt="Logo" className="logo" />
-          <li>
-            <Link to="/" className="bg-pink-300 px-4 py-2 rounded-lg shadow-md hover:bg-pink-400 transition-colors">Inicio</Link>
-          </li>
-          <li>
-            <Link to="/about-us" className="bg-pink-300 px-4 py-2 rounded-lg shadow-md hover:bg-pink-400 transition-colors">Sobre nosotros</Link>
-          </li>
-          <li>
-            <Link to="/faq" className="bg-pink-300 px-4 py-2 rounded-lg shadow-md hover:bg-pink-400 transition-colors">Preguntas frecuentes</Link>
-          </li>
-        </ul>
+    <header id="header" className="text-gray-800 p-4 flex flex-wrap justify-between items-center border-b-2 border-gray-300 shadow-md bg-white opacity-95 fixed top-0 w-full z-50">
+      <nav className="flex items-center space-x-4">
+      <img src={logo} alt="Logo" className="logo w-10 h-10 object-contain" />
+      <ul className="flex flex-wrap space-x-2 sm:space-x-4">
+        <li>
+          <Link to="/" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm sm:text-base">Inicio</Link>
+        </li>
+        <li>
+          <Link to="/about-us" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm sm:text-base">Sobre nosotros</Link>
+        </li>
+        <li>
+          <Link to="/faq" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm sm:text-base">Preguntas frecuentes</Link>
+        </li>
+      </ul>
       </nav>
 
       {/* Contenedor del botón de inicio de sesión o información del usuario */}
@@ -67,20 +66,24 @@ export const Header = () => {
 
 export const Footer = () => {
   return (
-    <footer id="footer" className="text-gray-800 p-4 flex justify-between items-center border-b-2 border-gray-300 shadow-md bg-white opacity-95 fixed top-0 w-full z-50" class = "breadcrumb">
-      <nav>
-        <ul className="flex space-x-4">
-          <li>
-            <Link to="/" className="bg-pink-300 px-4 py-2 rounded-lg shadow-md hover:bg-pink-400 transition-colors">Inicio</Link>
-          </li>
-          <li>
-            <Link to="/about-us" className="bg-pink-300 px-4 py-2 rounded-lg shadow-md hover:bg-pink-400 transition-colors">Sobre nosotros</Link>
-          </li>
-          <li>
-            <Link to="/faq" className="bg-pink-300 px-4 py-2 rounded-lg shadow-md hover:bg-pink-400 transition-colors">Preguntas frecuentes</Link>
-          </li>
-        </ul>
-      </nav>
+    <footer className="text-gray-800 p-4 border-t-2 border-gray-300 shadow-inner bg-white opacity-95 w-full mt-10">
+      <div className="max-w-7xl mx-auto flex flex-col items-center space-y-4">
+        <nav>
+          <ul className="flex flex-wrap justify-center space-x-4">
+            <li>
+              <Link to="/" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">Inicio</Link>
+            </li>
+            <li>
+              <Link to="/about-us" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">Sobre nosotros</Link>
+            </li>
+            <li>
+              <Link to="/faq" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">Preguntas frecuentes</Link>
+            </li>
+          </ul>
+        </nav>
+        <p className="text-xs text-gray-500">&copy; 2025 Performy. Todos los derechos reservados.</p>
+      </div>
     </footer>
   );
 };
+

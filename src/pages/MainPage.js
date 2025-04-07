@@ -125,7 +125,8 @@ const MainPage = () => {
           </button>
         </div>
       ) : (
-        <div className="messages-list-container">
+        <div className="messages-list-container" style={{ maxHeight: "300px", overflowY: "auto" }}>
+          <div className="messages-list-container max-h-[300px] overflow-y-auto">
           {mensajes.length > 0 ? (
             <ul className="messages-list">
               {mensajes.map((mensaje) => (
@@ -163,6 +164,7 @@ const MainPage = () => {
               No tienes mensajes en tu bandeja de entrada.
             </div>
           )}
+          </div>
         </div>
       )}
     </div>
