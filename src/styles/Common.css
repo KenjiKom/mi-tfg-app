@@ -47,15 +47,10 @@ a {
 
 #footer {
   height: var(--footer-height);
-  background: aliceblue;
-  width: 100%;
   text-align: center;
   line-height: var(--footer-height);
   position: fixed;
   display: center;
-  bottom: 0;
-  left: 0;
-  box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);
 }
 
 #content {
@@ -418,9 +413,15 @@ a {
 }
 
 .messages-list-container {
-  border: 1px solid #e9ecef;
+  border: 0.5px solid #e9ecef;
   border-radius: 4px;
   overflow: hidden;
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  gap: 0.1rem; /* Espacio entre mensajes, opcional */
+  padding: 0.5rem;
+  scroll-behavior: smooth;
 }
 
 .messages-list {
@@ -467,10 +468,11 @@ a {
 }
 
 .message-date {
-  font-size: 0.75rem;
+  font-size: 0.70rem;
   color: #adb5bd;
   display: flex;
   align-items: center;
+  text-align: center;
 }
 
 .message-preview {
@@ -516,18 +518,33 @@ a {
   justify-content: center;
   align-items: center;
   z-index: 2000;
+  overflow-x: auto;
+  white-space: nowrap;
+  gap: 1rem;
+  padding: 1rem;
+  scroll-behavior: smooth;
+}
+
+.message-modal-overlay::-webkit-scrollbar {
+  height: 8px;
+  overflow-x: auto;
+}
+
+.message-modal-overlay::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow-x: auto;
 }
 
 .message-modal {
+  min-width: 250px;
+  max-width: 300px;
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  overflow-x: auto;
 }
 
 .modal-header {

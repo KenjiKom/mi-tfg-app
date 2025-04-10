@@ -66,24 +66,30 @@ export const Header = () => {
 
 export const Footer = () => {
   return (
-    <footer className="text-gray-800 p-4 border-t-2 border-gray-300 shadow-inner bg-white opacity-95 w-full mt-10">
-      <div className="max-w-7xl mx-auto flex flex-col items-center space-y-4">
-        <nav>
-          <ul className="flex flex-wrap justify-center space-x-4">
-            <li>
-              <Link to="/" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">Inicio</Link>
-            </li>
-            <li>
-              <Link to="/about-us" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">Sobre nosotros</Link>
-            </li>
-            <li>
-              <Link to="/faq" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">Preguntas frecuentes</Link>
-            </li>
-          </ul>
-        </nav>
-        <p className="text-xs text-gray-500">&copy; 2025 Performy. Todos los derechos reservados.</p>
-      </div>
-    </footer>
+  <footer className="fixed bottom-0 left-0 w-full bg-white shadow-md border-t border-gray-300 z-50">
+      <div className="max-w-7xl mx-auto flex flex-col items-center space-y-2 p-4">
+      <nav>
+      <ul className="flex flex-wrap justify-center space-x-4">
+        <li>
+          <Link to="/" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">
+            Inicio
+          </Link>
+        </li>
+        <li>
+          <Link to="/about-us" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">
+            Sobre nosotros
+          </Link>
+        </li>
+        <li>
+          <Link to="/faq" className="bg-pink-300 px-3 py-1 rounded-lg shadow-md hover:bg-pink-400 transition-colors text-sm">
+            Preguntas frecuentes
+          </Link>
+        </li>
+      </ul>
+    </nav>
+    <p className="text-xs text-gray-500">&copy; 2025 Performy. Todos los derechos reservados.</p>
+    </div>
+  </footer>
   );
 };
 
