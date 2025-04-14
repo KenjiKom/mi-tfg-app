@@ -27,17 +27,18 @@ def get_old_students_data():
     conn = connect_db()
     curso_actual = get_current_course()
     query = """
-    SELECT M.id AS id_matricula, M.id_asignatura, M.Curso, 
-           M.Nota, 
+    SELECT M.id AS id_matricula, M.id_asignatura, M.Curso,
+           CASE WHEN M.Nota IS NULL THEN 0 ELSE M.Nota END AS Nota,
            COUNT(E.id) AS num_eventos
     FROM TFG.Matricula M
     LEFT JOIN TFG.Evento E ON M.id = E.id_matricula
-    WHERE M.Curso < %s AND M.Nota IS NOT NULL
+    WHERE M.Curso < %s
     GROUP BY M.id, M.id_asignatura, M.Curso, M.Nota
     """
     df = pd.read_sql(query, conn, params=[curso_actual])
     conn.close()
     return df
+
 
 def calculate_event_means(df):
     means = df.groupby(['id_asignatura', 'Curso'])['num_eventos'].mean().reset_index()
@@ -48,8 +49,7 @@ def get_current_students_data():
     conn = connect_db()
     curso_actual = get_current_course()
     query = """
-    SELECT M.id AS id_matricula, M.id_asignatura, M.Curso, 
-           COUNT(E.id) AS num_eventos
+    SELECT M.id AS id_matricula, M.id_asignatura, M.Curso, COUNT(E.id) AS num_eventos
     FROM TFG.Matricula M
     LEFT JOIN TFG.Evento E ON M.id = E.id_matricula
     WHERE M.Curso = %s
@@ -78,26 +78,31 @@ def determine_profile(nota, diferencia_eventos):
             return 4    # Nota suspensa, poca actividad
 
 def assign_profiles(df, event_means):
-    # Para alumnos actuales (sin nota), usamos la media histórica de su asignatura
+    curso_actual = get_current_course()
+    
     if 'Nota' not in df.columns:
-        # Calculamos media histórica por asignatura (todos los cursos anteriores)
-        historical_means = event_means.groupby('id_asignatura')['media_eventos'].mean().reset_index()
-        historical_means.columns = ['id_asignatura', 'media_historica']
+        # Media histórica por asignatura (de cursos anteriores)
+        historical_means = (
+            event_means[event_means['Curso'] != curso_actual]
+            .groupby('id_asignatura')['media_eventos']
+            .mean()
+            .reset_index()
+            .rename(columns={'media_eventos': 'media_historica'})
+        )
         
-        # Hacemos merge con las medias históricas
         df = df.merge(historical_means, on='id_asignatura', how='left')
         df['media_eventos'] = df['media_historica'].fillna(0)
     else:
-        # Para alumnos históricos, usamos la media de su curso y asignatura exacta
+        # Alumnos históricos: usar media de su curso y asignatura exacta
         df = df.merge(event_means, on=['id_asignatura', 'Curso'], how='left')
         df['media_eventos'] = df['media_eventos'].fillna(0)
-    
+
     df['diferencia_eventos'] = df['num_eventos'] - df['media_eventos']
-    
-    # Calcular percentiles para distribución 50/50
     df['percentil_actividad'] = df.groupby(['id_asignatura', 'Curso'])['diferencia_eventos'].rank(pct=True)
     
     return df
+
+
 
 def train_regression_model(df):
     df_clean = df.fillna(0)
@@ -138,7 +143,7 @@ def store_predictions_in_db(data):
                 float(nota_predicha),
                 cluster,
                 int(cluster_numero),
-                prediccion_fecha,
+                prediccion_fecha, 
                 int(row['id_matricula'])
             ))
         else:
