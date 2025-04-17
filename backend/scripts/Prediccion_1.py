@@ -17,43 +17,41 @@ def obtener_matriculas_anteriores() -> List[Dict]:
     
     query = """
     WITH 
-    MediaEventos AS (
+    ConteoEventos AS (
         SELECT 
             m.id_asignatura,
             m.Curso,
-            AVG(COUNT(e.id)) AS media_eventos
-        FROM 
-            Matricula m
-        JOIN 
-            Evento e ON m.id = e.id_matricula
-        GROUP BY 
-            m.id_asignatura, m.Curso
-    ),
-    EventosAlumno AS (
-        SELECT 
             m.id AS id_matricula,
-            m.id_usuario,
-            m.id_asignatura,
-            m.Curso,
-            m.Nota,
             COUNT(e.id) AS total_eventos
         FROM 
             Matricula m
         LEFT JOIN 
             Evento e ON m.id = e.id_matricula
         GROUP BY 
-            m.id, m.id_usuario, m.id_asignatura, m.Curso, m.Nota
+            m.id_asignatura, m.Curso, m.id
+    ),
+    MediaEventos AS (
+        SELECT 
+            id_asignatura,
+            Curso,
+            AVG(total_eventos) AS media_eventos
+        FROM 
+            ConteoEventos
+        GROUP BY 
+            id_asignatura, Curso
     )
     SELECT 
-        ea.id_matricula,
-        ea.Nota,
-        (ea.total_eventos - me.media_eventos) AS diferencia_eventos
+        ce.id_matricula,
+        IFNULL(m.Nota, 0) AS Nota,  # Tratar NULL como 0
+        (ce.total_eventos - me.media_eventos) AS diferencia_eventos
     FROM 
-        EventosAlumno ea
+        ConteoEventos ce
     JOIN 
-        MediaEventos me ON ea.id_asignatura = me.id_asignatura AND ea.Curso = me.Curso
+        Matricula m ON ce.id_matricula = m.id
+    JOIN 
+        MediaEventos me ON ce.id_asignatura = me.id_asignatura AND ce.Curso = me.Curso
     WHERE 
-        ea.Curso < (SELECT MAX(Curso) FROM Matricula)
+        ce.Curso < (SELECT MAX(Curso) FROM Matricula)
     """
     
     cursor.execute(query)
@@ -63,12 +61,13 @@ def obtener_matriculas_anteriores() -> List[Dict]:
 
 def asignar_perfil(nota: float, diferencia_eventos: float, umbral_actividad: float = 0) -> Tuple[int, str]:
     """Asigna un perfil según las reglas especificadas"""
+    # Nota ya viene con NULL convertido a 0 por el IFNULL en la consulta SQL
     if nota >= 50:  # Aprobado
         if diferencia_eventos > umbral_actividad:
             return (1, "Perfil 1")  # Nota aprobada, mucha actividad
         else:
             return (2, "Perfil 2")   # Nota aprobada, poca actividad
-    else:  # Suspenso
+    else:  # Suspenso (incluye notas NULL convertidas a 0)
         if diferencia_eventos > umbral_actividad:
             return (3, "Perfil 3")  # Nota suspensa, mucha actividad
         else:
@@ -101,7 +100,7 @@ def guardar_predicciones():
         # Valores a insertar
         values = (
             matricula['id_matricula'],
-            matricula['Nota'],  # Usamos la nota real como Nota_predicha
+            matricula['Nota'],  # Usamos la nota (0 si era NULL)
             cluster_nombre,
             cluster_numero,
             datetime.now().date()  # Fecha actual
