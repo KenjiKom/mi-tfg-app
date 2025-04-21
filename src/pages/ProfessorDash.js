@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/Common.css';
+import '../styles/ProfessorVisualization.css'
 import { useNavigate } from 'react-router-dom';
 import { Header, Footer } from "../components/HeaderFooter.js";
 
@@ -11,10 +12,10 @@ const ProfessorDash = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-pink-50">
+    <div className="main-content">
     <div>
       <Header />
-      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content">
+      <main className="welcome-container" id = "content">
       <h1>Dashboard para profesores</h1>
       <p>Bienvenido. En esta página podrás visualizar el rendimiento percibido del alumnado:</p>
       <button 

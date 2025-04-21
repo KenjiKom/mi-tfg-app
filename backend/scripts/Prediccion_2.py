@@ -2,6 +2,7 @@ import mysql.connector
 from datetime import datetime
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 from typing import List, Dict, Tuple
 
 def connect_db():
@@ -73,10 +74,9 @@ def obtener_datos_entrenamiento() -> Tuple[np.ndarray, np.ndarray]:
     
     return X, y
 
-# [El resto de las funciones se mantienen exactamente igual]
-def entrenar_modelo() -> LinearRegression:
+def entrenar_modelo() -> DecisionTreeRegressor:
     X, y = obtener_datos_entrenamiento()
-    model = LinearRegression()
+    model = DecisionTreeRegressor(max_depth=3, random_state=42)
     model.fit(X, y)
     return model
 
