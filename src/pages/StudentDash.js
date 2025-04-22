@@ -12,9 +12,9 @@ const StudentDash = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-pink-50">
+    <div className="main-content">
       <Header />
-      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content">
+      <main className="welcome-container" id = "content">
       <h1>Dashboard del Alumno</h1>
       <p>Bienvenido. Aquí puedes ver tu rendimiento académico:</p>
       <button 

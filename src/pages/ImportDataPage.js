@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header, Footer } from "../components/HeaderFooter";
 import '../styles/Common.css';
-import { useEffect } from 'react';
 import axios from 'axios';
 import Pautas from '../documents/Pautas.pdf';
 
@@ -64,10 +63,9 @@ const ImportDataPage = () => {
       alert("Error al importar datos.");
       console.error(error);
     } finally {
-      setShowPopup(false); // Ocultar el popup cuando termine la operación
+      setShowPopup(false);
     }
   };
-  
 
   const handleRunScript = async () => {
     setLoading(true);
@@ -95,104 +93,171 @@ const ImportDataPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-pink-50">
+    <div className="page-container">
       <Header />
-      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id="content">
-        <h1 className="text-4xl font-bold text-pink-600 mb-4">Importar Datos</h1>
-        <p>
-          En este apartado, se puede subir información de vuestros alumnos, así como su asignatura, curso y eventos. 
-          (En caso de ser alumnos de cursos anteriores, también se pueden subir sus notas finales).
-        </p>
-        <br />
-        <p>En el siguiente documento, se explicará el formato de los informes a subir:</p>
-        <br />
+      <main id="content" className="main-content">
+        <div className="welcome-container" style={{ maxWidth: '800px', padding: '1rem' }}>
+          <h1 className="welcome-title">
+            Importar Datos
+          </h1>
 
-        <iframe src={Pautas} width="100%" height="600px"></iframe>
+          <p className="welcome-description" style={{ marginBottom: '0.5rem' }}>
+            En este apartado, se puede subir información de vuestros alumnos, así como su asignatura, curso y eventos. 
+            (En caso de ser alumnos de cursos anteriores, también se pueden subir sus notas finales).
+          </p>
 
-        <p><strong>Plantillas de los archivos necesarios:</strong></p>
-        <label>Usuarios:</label>
-        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Usuarios.xlsx"}>
-          Descargar
-        </button>
-        <br></br>
-        <label>Notas:</label>
-        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Notas.xlsx"}>
-          Descargar
-        </button>
-        <br></br>
-        <label>Eventos:</label>
-        <button className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login" onClick={() => window.location.href = "Eventos.xlsx"}>
-          Descargar
-        </button>
+          <p className="welcome-description" style={{ margin: '0.5rem 0' }}>
+            En el siguiente documento, se explicará el formato de los informes a subir:
+          </p>
 
-        <p><br/>Siguiendo las pautas descritas en el documento anterior, suba los archivos en los siguientes contenedores:</p>
+          <iframe src={Pautas} width="100%" height="500px" className="document-frame" style={{ margin: '0.5rem 0' }}></iframe>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          <label>Asignatura</label>
-          <select 
-            value={fileAsignatura} 
-            onChange={handleAsignaturaChange} 
-            className="border-2 border-pink-300 px-4 py-2 rounded-md"
-          >
-            <option value="">Selecciona una asignatura</option> {/* Opción por defecto */}
-              {asignaturas.map((asignatura) => (
-              <option key={asignatura.id} value={asignatura.Nombre}>{asignatura.Nombre}</option>
-              ))}
-          </select>
-
-          <label>Curso</label>
-          <select 
-            value={fileCurso} 
-            onChange={handleCursoChange} 
-            className="border-2 border-pink-300 px-4 py-2 rounded-md"
-          >     
-            <option value="">Selecciona un curso</option> {/* Opción por defecto */}
-              {cursos.map((curso, index) => (
-              <option key={index} value={curso.Nombre}>{curso.Nombre}</option>
-              ))}
-          </select>
-          
-          <label>Usuarios.xlsx</label>
-          <input type="file" onChange={handleUsuariosChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
-          
-          <label>Notas.xlsx</label>
-          <input type="file" onChange={handleNotasChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
-
-          <label>Eventos.xlsx</label>
-          <input type="file" onChange={handleEventosChange} className="border-2 border-pink-300 px-4 py-2 rounded-md" />
-          
-          <br /><br />
-          <button type="submit" className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login">
-            Subir Archivos
-          </button>
-
-        </form>
-
-      {/* Popup de carga */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <p className="text-lg font-semibold">Subiendo archivos...</p>
-            <p>Por favor, espera unos minutos.</p>
+          <div className="download-section" style={{ margin: '1rem 0' }}>
+            <p className="section-title" style={{ marginBottom: '0.8rem' }}>
+              <strong>Plantillas de los archivos necesarios:</strong>
+            </p>
+  
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+              }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontWeight: '500' }}>Usuarios:</span>
+                <button 
+                  className="action-button" 
+                  style={{ padding: '0.4rem 0.8rem' }}
+                  onClick={() => window.location.href = "Usuarios.xlsx"}
+                >
+                  Descargar
+                </button>
+              </div>
+    
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontWeight: '500' }}>Notas:</span>
+                <button 
+                  className="action-button" 
+                  style={{ padding: '0.4rem 0.8rem' }}
+                  onClick={() => window.location.href = "Notas.xlsx"}
+                >
+                  Descargar
+                </button>
+              </div>
+    
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontWeight: '500' }}>Eventos:</span>
+                <button 
+                  className="action-button" 
+                  style={{ padding: '0.4rem 0.8rem' }}
+                  onClick={() => window.location.href = "Eventos.xlsx"}
+                >
+                  Descargar
+                </button>
+              </div>
+            </div>
           </div>
+
+          <p className="welcome-description" style={{ margin: '0.5rem 0' }}>
+            Siguiendo las pautas descritas en el documento anterior, suba los archivos en los siguientes contenedores:
+          </p>
+
+          <form onSubmit={handleSubmit} className="upload-form" style={{ margin: '0.5rem auto', padding: '1rem' }}>
+            <div className="form-group" style={{ marginBottom: '0.8rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.3rem' }}>Asignatura</label>
+              <select 
+                value={fileAsignatura} 
+                onChange={handleAsignaturaChange} 
+                className="form-select"
+                style={{ width: '100%', padding: '0.5rem' }}
+              >
+                <option value="">Selecciona una asignatura</option>
+                {asignaturas.map((asignatura) => (
+                  <option key={asignatura.id} value={asignatura.Nombre}>{asignatura.Nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '0.8rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.3rem' }}>Curso</label>
+              <select 
+                value={fileCurso} 
+                onChange={handleCursoChange} 
+                className="form-select"
+                style={{ width: '100%', padding: '0.5rem' }}
+              >     
+                <option value="">Selecciona un curso</option>
+                {cursos.map((curso, index) => (
+                  <option key={index} value={curso.Nombre}>{curso.Nombre}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-group" style={{ marginBottom: '0.8rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.3rem' }}>Usuarios.xlsx</label>
+              <input 
+                type="file" 
+                onChange={handleUsuariosChange} 
+                style={{ width: '100%', padding: '0.3rem' }}
+              />
+            </div>
+            
+            <div className="form-group" style={{ marginBottom: '0.8rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.3rem' }}>Notas.xlsx</label>
+              <input 
+                type="file" 
+                onChange={handleNotasChange} 
+                style={{ width: '100%', padding: '0.3rem' }}
+              />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '0.8rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.3rem' }}>Eventos.xlsx</label>
+              <input 
+                type="file" 
+                onChange={handleEventosChange} 
+                style={{ width: '100%', padding: '0.3rem' }}
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              className="action-button" 
+              style={{ 
+                padding: '0.5rem 1rem', 
+                width: '100%',
+                margin: '0.5rem 0'
+              }}
+            >
+              Subir Archivos
+            </button>
+          </form>
+
+          {showPopup && (
+            <div className="loading-popup">
+              <div className="popup-content">
+                <p className="popup-text">Subiendo archivos...</p>
+                <p className="popup-subtext">Por favor, espera unos minutos.</p>
+              </div>
+            </div>
+          )}
+
+          <h2 className="section-title" style={{ margin: '1rem 0 0.5rem' }}>Procesar y predecir rendimiento</h2>
+          <p className="welcome-description" style={{ margin: '0.5rem 0' }}>
+            Ejecutar el algoritmo de predicción para actualizar la base de datos con predicciones actualizadas:
+          </p>
+
+          <button
+            onClick={handleRunScript}
+            className="action-button"
+            style={{ padding: '0.5rem 1rem', margin: '0.5rem auto' }}
+            disabled={loading}
+          >
+            {loading ? "Ejecutando..." : "Ejecutar Script"}
+          </button>
         </div>
-      )}
-
-        <h1 className="text-4xl font-bold text-pink-600 mb-4">Procesar y predecir rendimiento</h1>
-        <p><br/>Ejecutar el algoritmo de predicción para actualizar la base de datos con predicciones actualizadas:</p>
-
-        <button
-          onClick={handleRunScript}
-          className="bg-pink-300 text-white px-6 py-3 rounded-full shadow-lg hover:bg-pink-400 transition-colors boton-login"
-          disabled={loading}
-        >
-          {loading ? "Ejecutando..." : "Ejecutar Script"}
-        </button>
       </main>
       <Footer />
-
-      
     </div>
   );
 };

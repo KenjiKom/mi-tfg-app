@@ -856,3 +856,157 @@ a {
     margin: 1rem 0 0 auto;
   }
 }
+
+
+/* --- Solo corrección de centrado --- */
+.footer-container {
+  width: 100%;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 1rem 0;
+  position: relative; /* Elimina fixed para evitar solapamientos */
+}
+
+.footer-content {
+  max-width: 1200px; /* Ajusta según tu diseño */
+  margin: 0 auto; /* Centrado horizontal */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem; /* Espacio entre botones */
+  padding: 0;
+  margin: 0;
+}
+
+/* Estilos específicos para ImportDataPage */
+.document-frame {
+  margin: 2rem 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.download-section {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.download-item {
+  margin: 1rem 0;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  color: #6a1b9a;
+  margin: 2rem 0 1rem;
+  text-align: center;
+}
+
+.upload-form {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.form-select, .form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.form-select:focus, .form-input:focus {
+  outline: none;
+  border-color: #9f7aea;
+}
+
+.submit-button {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.loading-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.popup-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.popup-subtext {
+  color: #718096;
+}
+
+/* Ajustes específicos para compactar */
+.download-section {
+  margin: 1rem 0 !important;
+}
+
+.download-item {
+  margin: 0.3rem 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.download-item label {
+  min-width: 80px;
+  margin: 0 !important;
+}
+
+.action-button {
+  padding: 0.5rem 1rem !important;
+  min-width: 120px;
+}
+
+.upload-form {
+  margin: 1rem auto !important;
+  padding: 1rem !important;
+}
+
+.form-group {
+  margin-bottom: 1rem !important;
+}
+
+.section-title {
+  margin: 1rem 0 0.5rem !important;
+}

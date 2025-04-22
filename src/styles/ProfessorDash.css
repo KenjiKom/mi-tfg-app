@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #f3e5f5; /* Puedes elegir el color que prefieras para los bordes */
+  background-color: #ffffff; /* Puedes elegir el color que prefieras para los bordes */
 }
 
 .teacher-dashboard {
@@ -16,7 +16,7 @@ body {
   margin: 0 auto;
   padding: 20px;
   background-color: #ffffff; /* Fondo blanco para el contenedor */
-  border: 10px solid #7b1fa2; /* Borde del color principal */
+  border: 10px solid #ffffff; /* Borde del color principal */
   border-radius: 8px; /* Bordes redondeados */
 }
 

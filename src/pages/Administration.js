@@ -31,10 +31,10 @@ const Administration = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-pink-50">
+    <div className="main-content">
     <div>
       <Header />
-      <main className="flex-grow flex flex-col items-center justify-center text-center p-6" id = "content">
+      <main className="welcome-container" id = "content">
       <h1>CRUD para administradores</h1>
       <p>Bienvenido. En esta página podrás gestionar la información alojada en nuestra base de datos. ¿Qué desea consultar?</p>
 
