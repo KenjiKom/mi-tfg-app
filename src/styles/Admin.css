@@ -1,11 +1,23 @@
 /* Admin.css */
 
-/* Asegurar que solo afecta a la página de administración */
 .admin-container {
   display: flex;
   align-items: flex-start;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 80px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  gap: 50px;
+}
+
+.page-container {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  gap: 50px;
 }
 
 .admin-form {
@@ -15,7 +27,7 @@
 
 .admin-table-container {
   flex: 2;
-  width: 100%;
+  width: 50%;
 }
   
   /* Botones */
@@ -71,4 +83,3 @@
   font-size: 14px;
   font-weight: bold;
 }
-

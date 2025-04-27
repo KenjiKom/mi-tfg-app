@@ -31,7 +31,7 @@ const Administration = () => {
   };
 
   return (
-    <div className="main-content">
+    <div className="page-container">
     <div>
       <Header />
       <main className="welcome-container" id = "content">

@@ -12,7 +12,7 @@ const StudentDash = () => {
   };
 
   return (
-    <div className="main-content">
+    <div className="page-container">
       <Header />
       <main className="welcome-container" id = "content">
       <h1>Dashboard del Alumno</h1>

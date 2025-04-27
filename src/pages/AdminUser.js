@@ -79,7 +79,7 @@ const AdminUser = () => {
   const totalPages = Math.ceil(filteredUsuarios.length / itemsPerPage);
 
   return (
-  <main id="content" className="admin-container">
+  <main className="page-container">
   <Header/>
   {/* Formulario a la izquierda */}
   <div className="admin-form">
