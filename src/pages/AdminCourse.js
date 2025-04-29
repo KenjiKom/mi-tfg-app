@@ -12,14 +12,12 @@ const AdminCourse = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Obtener todos los cursos al cargar el componente
   useEffect(() => {
     axios.get('http://localhost:5000/admin/cursos')
       .then(response => setCursos(response.data))
       .catch(error => console.error('Error al obtener los cursos:', error));
   }, []);
 
-  // Manejar el borrado de un curso
   const handleDelete = (id) => {
     axios.delete(`http://localhost:5000/admin/cursos/${id}`)
       .then(() => {
@@ -28,18 +26,15 @@ const AdminCourse = () => {
       .catch(error => console.error('Error al eliminar el curso:', error));
   };
 
-  // Manejar la edición de un curso
   const handleEdit = (curso) => {
     setCurrentCurso(curso);
     setNombre(curso.Nombre);
   };
 
-  // Manejar el formulario de agregar o editar
   const handleSubmit = () => {
     const cursoData = { Nombre: nombre };
 
     if (currentCurso) {
-      // Actualizar curso
       axios.put(`http://localhost:5000/admin/cursos/${currentCurso.id}`, cursoData)
         .then(response => {
           setCursos(cursos.map(curso => 
@@ -49,7 +44,6 @@ const AdminCourse = () => {
         })
         .catch(error => console.error('Error al actualizar el curso:', error));
     } else {
-      // Crear nuevo curso
       axios.post('http://localhost:5000/admin/cursos', cursoData)
         .then(response => {
           setCursos([...cursos, response.data]);
@@ -59,92 +53,124 @@ const AdminCourse = () => {
     }
   };
 
-  // Resetear el formulario
   const resetForm = () => {
     setCurrentCurso(null);
     setNombre('');
   };
 
-  // Filtrar cursos por nombre
   const filteredCursos = cursos.filter(curso => 
     curso.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentCursos = filteredCursos.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredCursos.length / itemsPerPage);
 
   return (
-    <main id="content" className="admin-container">
-      <Header/>
-      {/* Formulario a la izquierda */}
-      <div className="admin-form">
-        <h2>Gestión de Cursos</h2>
-        <input 
-          type="text" 
-          value={nombre} 
-          onChange={(e) => setNombre(e.target.value)} 
-          placeholder="Nombre del curso" 
-        />
-        <button className="admin-button" onClick={handleSubmit}>
-          {currentCurso ? 'Actualizar' : 'Agregar'}
-        </button>
-      </div>
+    <div className="page-container">
+      <main id="content" className="admin-container">
+        <Header/>
+        
+        <div className="admin-content-wrapper">
+          {/* Formulario a la izquierda */}
+          <div className="admin-form">
+            <div className="form-header">
+              <h2 className="form-title">Gestión de Cursos</h2>
+            </div>
+            
+            <div className="form-group compact-group">
+              <label htmlFor="nombre">Nombre del curso</label>
+              <input 
+                id="nombre"
+                type="text" 
+                value={nombre} 
+                onChange={(e) => setNombre(e.target.value)} 
+                placeholder="Ej: 2025-26" 
+                className="form-control compact-input"
+              />
+            </div>
 
-      {/* Tabla de cursos a la derecha */}
-      <div className="admin-table-container">
-        <div className="admin-search">
-          <input 
-            type="text" 
-            placeholder="Buscar curso..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-          />
+            <div className="form-actions compact-actions">
+              <button className="btn btn-primary" onClick={handleSubmit}>
+                {currentCurso ? 'Actualizar' : 'Agregar'}
+              </button>
+              {currentCurso && (
+                <button className="btn btn-secondary" onClick={resetForm}>
+                  Cancelar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Tabla de cursos a la derecha */}
+          <div className="admin-table-container">
+            <div className="admin-search">
+              <input 
+                type="text" 
+                placeholder="Buscar curso..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="admin-input"
+              />
+            </div>
+
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentCursos.map((curso) => (
+                  <tr key={curso.id}>
+                    <td>{curso.Nombre}</td>
+                    <td>
+                      <div className="admin-actions">
+                        <button 
+                          className="admin-button edit" 
+                          onClick={() => handleEdit(curso)}
+                        >
+                          Editar
+                        </button>
+                        <button 
+                          className="admin-button delete" 
+                          onClick={() => handleDelete(curso.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Controles de paginación */}
+            <div className="pagination">
+              <button 
+                className="pagination-button" 
+                onClick={() => setCurrentPage(currentPage - 1)} 
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </button>
+              <span>Página {currentPage} de {totalPages}</span>
+              <button 
+                className="pagination-button" 
+                onClick={() => setCurrentPage(currentPage + 1)} 
+                disabled={currentPage === totalPages || totalPages === 0}
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
         </div>
-
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentCursos.map((curso) => (
-              <tr key={curso.id}>
-                <td>{curso.Nombre}</td>
-                <td>
-                  <button className="admin-button" onClick={() => handleEdit(curso)}>Editar</button>
-                  <button className="admin-button" onClick={() => handleDelete(curso.id)}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Controles de paginación */}
-        <div className="pagination">
-          <button 
-            className="pagination-button" 
-            onClick={() => setCurrentPage(currentPage - 1)} 
-            disabled={currentPage === 1}
-          >
-            Anterior
-          </button>
-          <span>{currentPage} - {totalPages}</span>
-          <button 
-            className="pagination-button" 
-            onClick={() => setCurrentPage(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
-      <Footer/>
-    </main>
+        
+        <Footer/>
+      </main>
+    </div>
   );
 };
 

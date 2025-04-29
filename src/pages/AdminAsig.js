@@ -12,14 +12,12 @@ const AdminAsig = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Obtener todas las asignaturas al cargar el componente
   useEffect(() => {
     axios.get('http://localhost:5000/admin/asignaturas')
       .then(response => setAsignaturas(response.data))
       .catch(error => console.error('Error al obtener las asignaturas:', error));
   }, []);
 
-  // Manejar el borrado de una asignatura
   const handleDelete = (id) => {
     axios.delete(`http://localhost:5000/admin/asignaturas/${id}`)
       .then(() => {
@@ -28,18 +26,15 @@ const AdminAsig = () => {
       .catch(error => console.error('Error al eliminar la asignatura:', error));
   };
 
-  // Manejar la edición de una asignatura
   const handleEdit = (asignatura) => {
     setCurrentAsignatura(asignatura);
     setNombre(asignatura.Nombre);
   };
 
-  // Manejar el formulario de agregar o editar
   const handleSubmit = () => {
     const asignaturaData = { Nombre: nombre };
 
     if (currentAsignatura) {
-      // Actualizar asignatura
       axios.put(`http://localhost:5000/admin/asignaturas/${currentAsignatura.id}`, asignaturaData)
         .then(response => {
           setAsignaturas(asignaturas.map(asignatura => 
@@ -49,7 +44,6 @@ const AdminAsig = () => {
         })
         .catch(error => console.error('Error al actualizar la asignatura:', error));
     } else {
-      // Crear nueva asignatura
       axios.post('http://localhost:5000/admin/asignaturas', asignaturaData)
         .then(response => {
           setAsignaturas([...asignaturas, response.data]);
@@ -59,92 +53,124 @@ const AdminAsig = () => {
     }
   };
 
-  // Resetear el formulario
   const resetForm = () => {
     setCurrentAsignatura(null);
     setNombre('');
   };
 
-  // Filtrar asignaturas según el término de búsqueda
   const filteredAsignaturas = asignaturas.filter(asignatura => 
     asignatura.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentAsignaturas = filteredAsignaturas.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredAsignaturas.length / itemsPerPage);
 
   return (
-    <main id="content" className="admin-container">
-      <Header/>
-      {/* Formulario a la izquierda */}
-      <div className="admin-form">
-        <h2>Gestión de Asignaturas</h2>
-        <input 
-          type="text" 
-          value={nombre} 
-          onChange={(e) => setNombre(e.target.value)} 
-          placeholder="Nombre de la asignatura" 
-        />
-        <button className="admin-button" onClick={handleSubmit}>
-          {currentAsignatura ? 'Actualizar' : 'Agregar'}
-        </button>
-      </div>
+    <div className="page-container">
+      <main id="content" className="admin-container">
+        <Header/>
+        
+        <div className="admin-content-wrapper">
+          {/* Formulario a la izquierda */}
+          <div className="admin-form">
+            <div className="form-header">
+              <h2 className="form-title">Gestión de Asignaturas</h2>
+            </div>
+            
+            <div className="form-group compact-group">
+              <label htmlFor="nombre">Nombre de la asignatura</label>
+              <input 
+                id="nombre"
+                type="text" 
+                value={nombre} 
+                onChange={(e) => setNombre(e.target.value)} 
+                placeholder="Ej: Matemáticas Avanzadas" 
+                className="form-control compact-input"
+              />
+            </div>
 
-      {/* Tabla de asignaturas a la derecha */}
-      <div className="admin-table-container">
-        <div className="admin-search">
-          <input 
-            type="text" 
-            placeholder="Buscar asignatura..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-          />
+            <div className="form-actions compact-actions">
+              <button className="btn btn-primary" onClick={handleSubmit}>
+                {currentAsignatura ? 'Actualizar' : 'Agregar'}
+              </button>
+              {currentAsignatura && (
+                <button className="btn btn-secondary" onClick={resetForm}>
+                  Cancelar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Tabla de asignaturas a la derecha */}
+          <div className="admin-table-container">
+            <div className="admin-search">
+              <input 
+                type="text" 
+                placeholder="Buscar asignatura..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="admin-input"
+              />
+            </div>
+
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentAsignaturas.map((asignatura) => (
+                  <tr key={asignatura.id}>
+                    <td>{asignatura.Nombre}</td>
+                    <td>
+                      <div className="admin-actions">
+                        <button 
+                          className="admin-button edit" 
+                          onClick={() => handleEdit(asignatura)}
+                        >
+                          Editar
+                        </button>
+                        <button 
+                          className="admin-button delete" 
+                          onClick={() => handleDelete(asignatura.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Controles de paginación */}
+            <div className="pagination">
+              <button 
+                className="pagination-button" 
+                onClick={() => setCurrentPage(currentPage - 1)} 
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </button>
+              <span>Página {currentPage} de {totalPages}</span>
+              <button 
+                className="pagination-button" 
+                onClick={() => setCurrentPage(currentPage + 1)} 
+                disabled={currentPage === totalPages || totalPages === 0}
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
         </div>
-
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentAsignaturas.map((asignatura) => (
-              <tr key={asignatura.id}>
-                <td>{asignatura.Nombre}</td>
-                <td>
-                  <button className="admin-button" onClick={() => handleEdit(asignatura)}>Editar</button>
-                  <button className="admin-button" onClick={() => handleDelete(asignatura.id)}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Controles de paginación */}
-        <div className="pagination">
-          <button 
-            className="pagination-button" 
-            onClick={() => setCurrentPage(currentPage - 1)} 
-            disabled={currentPage === 1}
-          >
-            Anterior
-          </button>
-          <span>{currentPage} - {totalPages}</span>
-          <button 
-            className="pagination-button" 
-            onClick={() => setCurrentPage(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
-      <Footer/>
-    </main>
+        
+        <Footer/>
+      </main>
+    </div>
   );
 };
 

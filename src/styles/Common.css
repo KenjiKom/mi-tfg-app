@@ -1,6 +1,6 @@
 nav {
   display: flex;
-  align-items: center;  /* Centra verticalmente */
+  align-items: center;  
 }
 
 ul {
@@ -8,30 +8,29 @@ ul {
   margin: 0;
   padding: 0;
   display: flex;
-  align-items: center;  /* Centra verticalmente */
+  align-items: center;  
 }
 
 li {
   margin: 0;
-  padding: 0 10px; /* Añade un padding horizontal */
+  padding: 0 10px; 
 }
 
 a {
   text-decoration: none;
   font-weight: bold;
   display: flex;
-  align-items: center;  /* Centra verticalmente */
-  height: 100%; /* Asegúrate de que ocupe toda la altura del li */
+  align-items: center;  
+  height: 100%; 
 }
 
 :root {
-  --header-height: 100px; /* Ajusta según tu diseño */
-  --footer-height: 50px; /* Ajusta según tu diseño */
+  --header-height: 100px; 
+  --footer-height: 50px; 
 }
 
 #header {
   height: var(--header-height);
-  position: fixed;
   width: 100%;
   background: white;
   text-align: center;
@@ -40,9 +39,12 @@ a {
   opacity: 0.95;
   z-index: 1000;
   display: flex;
-  align-items: center;  /* Centra verticalmente */
-  justify-content: space-between; /* Distribuye el espacio entre los elementos */
-  padding: 0 20px; /* Añade un padding horizontal */
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
 }
 
 #footer {
@@ -54,8 +56,8 @@ a {
 }
 
 #content {
-  margin-top: var(--header-height); /* Empuja el contenido hacia abajo */
-  margin-bottom: var(--footer-height); /* Evita que el footer lo tape */
+  margin-top: var(--header-height); 
+  margin-bottom: var(--footer-height); 
   padding: 20px;
 }
 
@@ -78,15 +80,15 @@ a {
   width: 80px;
   height: auto;
   display: flex;
-  align-items: center;  /* Centra verticalmente */
+  align-items: center; 
 }
 
 .uca {
   width: 200px;
   height: auto;
   display: flex;
-  align-items: center;  /* Centra verticalmente */
-  justify-content: center; /* Centra horizontalmente */
+  align-items: center; 
+  justify-content: center; 
   margin: 0;
   padding: 0;
 }
@@ -214,7 +216,6 @@ a {
   margin-bottom: 20px;
 }
 
-/* Estilos adicionales para MainPage */
 .page-container {
   display: flex;
   flex-direction: column;
@@ -312,7 +313,7 @@ a {
 
 .admin-button {
   display: inline-block;
-  background-color: #d32f2f;
+  background-color: #6a1b9a;
   color: white;
   padding: 0.8rem 1.5rem;
   border-radius: 4px;
@@ -322,7 +323,7 @@ a {
 }
 
 .admin-button:hover {
-  background-color: #b71c1c;
+  background-color: #7b1fa2;
 }
 
 .student-section {
@@ -599,6 +600,12 @@ a {
 
 .message-body-compact {
   margin: 10px 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .message-content {
@@ -1010,3 +1017,5 @@ a {
 .section-title {
   margin: 1rem 0 0.5rem !important;
 }
+
+

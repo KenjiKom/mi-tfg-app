@@ -11,11 +11,12 @@ const AdminMat = () => {
   const [currentMatricula, setCurrentMatricula] = useState(null);
   const [idUsuario, setIdUsuario] = useState('');
   const [idAsignatura, setIdAsignatura] = useState('');
-  const [curso, setCurso] = useState('');
+  const [cursos, setCursos] = useState([]); // Cambiado de setCurso a setCursos
+  const [cursoSeleccionado, setCursoSeleccionado] = useState(''); // Nuevo estado para el curso seleccionado
   const [nota, setNota] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 8;
 
   useEffect(() => {
     axios.get('http://localhost:5000/admin/matriculas')
@@ -29,6 +30,10 @@ const AdminMat = () => {
     axios.get('http://localhost:5000/admin/asignaturas')
       .then(response => setAsignaturas(response.data))
       .catch(error => console.error('Error al obtener las asignaturas:', error));
+
+    axios.get('http://localhost:5000/asignaturas/todos-cursos')
+      .then(response => setCursos(response.data))
+      .catch(error => console.error('Error al obtener los cursos:', error));
   }, []);
 
   const handleDelete = (id) => {
@@ -43,12 +48,17 @@ const AdminMat = () => {
     setCurrentMatricula(matricula);
     setIdUsuario(matricula.id_usuario);
     setIdAsignatura(matricula.id_asignatura);
-    setCurso(matricula.Curso);
+    setCursoSeleccionado(matricula.Curso); // Usamos el nuevo estado
     setNota(matricula.Nota);
   };
 
   const handleSubmit = () => {
-    const matriculaData = { id_usuario: idUsuario, id_asignatura: idAsignatura, Curso: curso, Nota: nota };
+    const matriculaData = { 
+      id_usuario: idUsuario, 
+      id_asignatura: idAsignatura, 
+      Curso: cursoSeleccionado, // Usamos el nuevo estado
+      Nota: nota 
+    };
 
     if (currentMatricula) {
       axios.put(`http://localhost:5000/admin/matriculas/${currentMatricula.id}`, matriculaData)
@@ -73,7 +83,7 @@ const AdminMat = () => {
     setCurrentMatricula(null);
     setIdUsuario('');
     setIdAsignatura('');
-    setCurso('');
+    setCursoSeleccionado('');
     setNota('');
   };
 
@@ -88,105 +98,161 @@ const AdminMat = () => {
   const totalPages = Math.ceil(filteredMatriculas.length / itemsPerPage);
 
   return (
-    <main id="content" className="admin-container">
-      <Header/>
-      {/* Formulario a la izquierda */}
-      <div className="admin-form">
-        <h2>Gestión de Matrículas</h2>
-        <input 
-          type="text" 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)} 
-          placeholder="Buscar por curso" 
-        />
-        <select value={idUsuario} onChange={(e) => setIdUsuario(e.target.value)}>
-          <option value="">Seleccionar Usuario</option>
-          {usuarios.map(usuario => (
-            <option key={usuario.id} value={usuario.id}>{usuario.Nombre}</option>
-          ))}
-        </select>
-        <select value={idAsignatura} onChange={(e) => setIdAsignatura(e.target.value)}>
-          <option value="">Seleccionar Asignatura</option>
-          {asignaturas.map(asignatura => (
-            <option key={asignatura.id} value={asignatura.id}>{asignatura.Nombre}</option>
-          ))}
-        </select>
-        <input 
-          type="text" 
-          value={curso} 
-          onChange={(e) => setCurso(e.target.value)} 
-          placeholder="Curso" 
-        />
-        <input 
-          type="number" 
-          value={nota} 
-          onChange={(e) => setNota(e.target.value)} 
-          placeholder="Nota" 
-          step="0.1" 
-        />
-        <button className="admin-button" onClick={handleSubmit}>
-          {currentMatricula ? 'Actualizar' : 'Agregar'}
-        </button>
-      </div>
+    <div className="page-container">
+      <main id="content" className="admin-container">
+        <Header/>
+        
+        <div className="admin-content-wrapper">
+          {/* Formulario a la izquierda */}
+          <div className="admin-form">
+            <div className="form-header">
+              <h2 className="form-title">Gestión de Matrículas</h2>
+            </div>
 
-      {/* Tabla de matrículas a la derecha */}
-      <div className="admin-table-container">
-        <div className="admin-search">
-          <input 
-            type="text" 
-            placeholder="Buscar matrícula..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-          />
+            <div className="form-group compact-group">
+              <label htmlFor="usuario">Usuario</label>
+              <select 
+                id="usuario"
+                value={idUsuario} 
+                onChange={(e) => setIdUsuario(e.target.value)}
+                className="form-control compact-input"
+              >
+                <option value="">Seleccionar Usuario</option>
+                {usuarios.map(usuario => (
+                  <option key={usuario.id} value={usuario.id}>{usuario.Nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group compact-group">
+              <label htmlFor="asignatura">Asignatura</label>
+              <select 
+                id="asignatura"
+                value={idAsignatura} 
+                onChange={(e) => setIdAsignatura(e.target.value)}
+                className="form-control compact-input"
+              >
+                <option value="">Seleccionar Asignatura</option>
+                {asignaturas.map(asignatura => (
+                  <option key={asignatura.id} value={asignatura.id}>{asignatura.Nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group compact-group">
+              <label htmlFor="curso">Curso</label>
+              <select 
+                id="curso"
+                value={cursoSeleccionado}
+                onChange={(e) => setCursoSeleccionado(e.target.value)}
+                className="form-control compact-input"
+              >
+                <option value="">Seleccionar Curso</option>
+                {Array.isArray(cursos) && cursos.map(curso => (
+                  <option key={curso.id} value={curso.Nombre}>{curso.Nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group compact-group">
+              <label htmlFor="nota">Nota</label>
+              <input 
+                id="nota"
+                type="number" 
+                value={nota} 
+                onChange={(e) => setNota(e.target.value)} 
+                placeholder="Ej: 7.5" 
+                step="0.1"
+                className="form-control compact-input"
+              />
+            </div>
+
+            <div className="form-actions compact-actions">
+              <button className="btn btn-primary" onClick={handleSubmit}>
+                {currentMatricula ? 'Actualizar' : 'Agregar'}
+              </button>
+              {currentMatricula && (
+                <button className="btn btn-secondary" onClick={resetForm}>
+                  Cancelar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Tabla de matrículas a la derecha */}
+          <div className="admin-table-container">
+            <div className="admin-search">
+              <input 
+                type="text" 
+                placeholder="Buscar por curso..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="admin-input"
+              />
+            </div>
+
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Asignatura</th>
+                  <th>Curso</th>
+                  <th>Nota</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentMatriculas.map(matricula => (
+                  <tr key={matricula.id}>
+                    <td>{matricula.id_usuario}</td>
+                    <td>{matricula.id_asignatura}</td>
+                    <td>{matricula.Curso}</td>
+                    <td>{matricula.Nota}</td>
+                    <td>
+                      <div className="admin-actions">
+                        <button 
+                          className="admin-button edit" 
+                          onClick={() => handleEdit(matricula)}
+                        >
+                          Editar
+                        </button>
+                        <button 
+                          className="admin-button delete" 
+                          onClick={() => handleDelete(matricula.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Controles de paginación */}
+            <div className="pagination">
+              <button 
+                className="pagination-button" 
+                onClick={() => setCurrentPage(currentPage - 1)} 
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </button>
+              <span>Página {currentPage} de {totalPages}</span>
+              <button 
+                className="pagination-button" 
+                onClick={() => setCurrentPage(currentPage + 1)} 
+                disabled={currentPage === totalPages || totalPages === 0}
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
         </div>
-
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Usuario</th>
-              <th>Asignatura</th>
-              <th>Curso</th>
-              <th>Nota</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentMatriculas.map(matricula => (
-              <tr key={matricula.id}>
-                <td>{matricula.id_usuario}</td>
-                <td>{matricula.id_asignatura}</td>
-                <td>{matricula.Curso}</td>
-                <td>{matricula.Nota}</td>
-                <td>
-                  <button className="admin-button" onClick={() => handleEdit(matricula)}>Editar</button>
-                  <button className="admin-button" onClick={() => handleDelete(matricula.id)}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Controles de paginación */}
-        <div className="pagination">
-          <button 
-            className="pagination-button" 
-            onClick={() => setCurrentPage(currentPage - 1)} 
-            disabled={currentPage === 1}
-          >
-            Anterior
-          </button>
-          <span>{currentPage} - {totalPages}</span>
-          <button 
-            className="pagination-button" 
-            onClick={() => setCurrentPage(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
-      <Footer/>
-    </main>
+        
+        <Footer/>
+      </main>
+    </div>
   );
 };
 

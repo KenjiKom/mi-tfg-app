@@ -190,12 +190,10 @@ router.delete('/matriculas/:id', async (req, res) => {
 
 // Obtener eventos con paginación y búsqueda
 router.get('/eventos', async (req, res) => {
-  const { page = 1, limit = 5, search = '' } = req.query;
-  const offset = (page - 1) * limit;
   
   try {
-      const query = `SELECT * FROM Evento WHERE Nombre LIKE ? LIMIT ? OFFSET ?`;
-      db.query(query, [`%${search}%`, parseInt(limit), parseInt(offset)], (err, results) => {
+      const query = `SELECT * FROM Evento`;
+      db.query(query, (err, results) => {
           if (err) return res.status(500).json({ error: err.message });
           res.json(results);
       });
