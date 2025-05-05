@@ -1,8 +1,7 @@
 import mysql.connector
-from datetime import datetime
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
+from datetime import datetime
+from sklearn.ensemble import RandomForestRegressor
 from typing import List, Dict, Tuple
 
 def connect_db():
@@ -13,121 +12,136 @@ def connect_db():
         database="TFG"
     )
 
+def calcular_tendencia(id_matricula: int) -> float:
+    """Calcula la pendiente de la regresión lineal de actividad semanal"""
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT 
+        WEEK(Hora, 3) as semana,
+        COUNT(*) as cantidad
+    FROM 
+        Evento
+    WHERE 
+        id_matricula = %s
+    GROUP BY 
+        semana
+    ORDER BY 
+        semana
+    """
+    
+    cursor.execute(query, (id_matricula,))
+    semanas_data = cursor.fetchall()
+    conn.close()
+    
+    if len(semanas_data) < 2:
+        return 0
+    
+    semanas = np.array([d[0] for d in semanas_data])
+    cantidades = np.array([d[1] for d in semanas_data])
+    slope, _ = np.polyfit(semanas, cantidades, 1)
+    return slope
+
 def obtener_datos_entrenamiento() -> Tuple[np.ndarray, np.ndarray]:
-    """Obtiene eventos normalizados (-1 a 1) y notas reales"""
+    """Obtiene datos históricos normalizados para entrenamiento"""
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
     
     query = """
     WITH 
-    ConteoEventos AS (
+    ConteoPorMatricula AS (
         SELECT 
+            m.id,
             m.id_asignatura,
             m.Curso,
-            m.id AS id_matricula,
-            COUNT(e.id) AS total_eventos,
-            m.Nota
+            COUNT(e.id) as total_eventos,
+            IFNULL(m.Nota, 0) AS Nota
         FROM 
             Matricula m
-        JOIN Usuario u ON m.id_usuario = u.id
         LEFT JOIN Evento e ON m.id = e.id_matricula
         WHERE 
-            m.Nota > 0
-            AND u.is_admin = False
-            AND u.is_teacher = False
+            m.Curso < (SELECT MAX(Curso) FROM Matricula)
         GROUP BY 
             m.id, m.id_asignatura, m.Curso, m.Nota
     ),
-    StatsAsignatura AS (
+    StatsPorAsignatura AS (
         SELECT 
             id_asignatura,
             Curso,
-            MAX(total_eventos) AS max_eventos,
-            MIN(total_eventos) AS min_eventos,
-            AVG(total_eventos) AS media_eventos
+            AVG(total_eventos) as media_eventos,
+            MAX(total_eventos) as max_eventos,
+            MIN(total_eventos) as min_eventos
         FROM 
-            ConteoEventos
+            ConteoPorMatricula
         GROUP BY 
             id_asignatura, Curso
     )
     SELECT 
-        -- Normalización a rango [-1, 1]
-        CASE 
-            WHEN sa.max_eventos = sa.min_eventos THEN 0  # Evitar división por cero
-            ELSE ((ce.total_eventos - sa.media_eventos) / (sa.max_eventos - sa.min_eventos)) * 2 
-        END AS eventos_normalizados,
-        ce.Nota
+        c.id,
+        c.Nota,
+        ((c.total_eventos - s.media_eventos) / NULLIF((s.max_eventos - s.min_eventos), 1)) as eventos_norm
     FROM 
-        ConteoEventos ce
-    JOIN 
-        StatsAsignatura sa ON ce.id_asignatura = sa.id_asignatura AND ce.Curso = sa.Curso
+        ConteoPorMatricula c
+    JOIN StatsPorAsignatura s ON c.id_asignatura = s.id_asignatura AND c.Curso = s.Curso
     WHERE
-        sa.max_eventos != sa.min_eventos  # Excluir casos sin variación
+        s.max_eventos != s.min_eventos
     """
     
     cursor.execute(query)
-    resultados = cursor.fetchall()
+    datos = cursor.fetchall()
     conn.close()
     
-    X = np.array([r['eventos_normalizados'] for r in resultados]).reshape(-1, 1)
-    y = np.array([r['Nota'] for r in resultados])
+    X = []
+    y = []
+    for dato in datos:
+        tendencia = calcular_tendencia(dato['id'])
+        X.append([dato['eventos_norm'], tendencia])
+        y.append(dato['Nota'])
     
-    return X, y
-
-def entrenar_modelo() -> DecisionTreeRegressor:
-    X, y = obtener_datos_entrenamiento()
-    model = DecisionTreeRegressor(max_depth=3, random_state=42)
-    model.fit(X, y)
-    return model
+    return np.array(X), np.array(y)
 
 def obtener_matriculas_actuales() -> List[Dict]:
+    """Obtiene matrículas actuales con eventos normalizados"""
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
     
     query = """
     WITH 
-    CurrentCourse AS (SELECT MAX(Curso) AS curso_actual FROM Matricula),
-    ConteoEventos AS (
+    CurrentCourse AS (SELECT MAX(Curso) as curso_actual FROM Matricula),
+    ConteoPorMatricula AS (
         SELECT 
+            m.id,
             m.id_asignatura,
-            m.id AS id_matricula,
-            COUNT(e.id) AS total_eventos
+            COUNT(e.id) as total_eventos
         FROM 
             Matricula m
-        JOIN Usuario u ON m.id_usuario = u.id
         LEFT JOIN Evento e ON m.id = e.id_matricula
         CROSS JOIN CurrentCourse cc
         WHERE 
             m.Curso = cc.curso_actual
-            AND u.is_admin = False
-            AND u.is_teacher = False
         GROUP BY 
-            m.id_asignatura, m.id
+            m.id, m.id_asignatura
     ),
-    StatsAsignatura AS (
+    StatsPorAsignatura AS (
         SELECT 
             id_asignatura,
-            MAX(total_eventos) AS max_eventos,
-            MIN(total_eventos) AS min_eventos,
-            AVG(total_eventos) AS media_eventos
+            AVG(total_eventos) as media_eventos,
+            MAX(total_eventos) as max_eventos,
+            MIN(total_eventos) as min_eventos
         FROM 
-            ConteoEventos
+            ConteoPorMatricula
         GROUP BY 
             id_asignatura
     )
     SELECT 
-        ce.id_matricula,
-        -- Normalización a [-1, 1]
-        CASE 
-            WHEN sa.max_eventos = sa.min_eventos THEN 0
-            ELSE ((ce.total_eventos - sa.media_eventos) / (sa.max_eventos - sa.min_eventos)) * 2
-        END AS eventos_normalizados
+        c.id,
+        ((c.total_eventos - s.media_eventos) / NULLIF((s.max_eventos - s.min_eventos), 1)) as eventos_norm
     FROM 
-        ConteoEventos ce
-    JOIN 
-        StatsAsignatura sa ON ce.id_asignatura = sa.id_asignatura
+        ConteoPorMatricula c
+    JOIN StatsPorAsignatura s ON c.id_asignatura = s.id_asignatura
     WHERE
-        sa.max_eventos != sa.min_eventos
+        s.max_eventos != s.min_eventos
     """
     
     cursor.execute(query)
@@ -135,30 +149,34 @@ def obtener_matriculas_actuales() -> List[Dict]:
     conn.close()
     return resultados
 
-def asignar_perfil(nota: float, diferencia_eventos: float, umbral_actividad: float = 0) -> Tuple[int, str]:
-    """Asigna un perfil según las reglas especificadas"""
-    if nota >= 50:  # Aprobado
-        if diferencia_eventos > umbral_actividad:
-            return (1, "Perfil 1")  # Nota aprobada, mucha actividad
+def asignar_perfil(nota: float, eventos_norm: float, tendencia: float) -> Tuple[int, str]:
+    """Asigna 1 de 8 perfiles basados en:
+    - Nota (aprobado/suspenso)
+    - Actividad (alta/baja)
+    - Tendencia (creciente/decreciente)"""
+    if nota >= 50:
+        if eventos_norm > 0:
+            return (1, "Aprobado-AltaAct-Creciente") if tendencia > 0 else (2, "Aprobado-AltaAct-Decreciente")
         else:
-            return (2, "Perfil 2")   # Nota aprobada, poca actividad
-    else:  # Suspenso
-        if diferencia_eventos > umbral_actividad:
-            return (3, "Perfil 3")  # Nota suspensa, mucha actividad
+            return (3, "Aprobado-BajaAct-Creciente") if tendencia > 0 else (4, "Aprobado-BajaAct-Decreciente")
+    else:
+        if eventos_norm > 0:
+            return (5, "Suspenso-AltaAct-Creciente") if tendencia > 0 else (6, "Suspenso-AltaAct-Decreciente")
         else:
-            return (4, "Perfil 4")    # Nota suspensa, poca actividad
+            return (7, "Suspenso-BajaAct-Creciente") if tendencia > 0 else (8, "Suspenso-BajaAct-Decreciente")
 
-def procesar_alumnos_actuales():
-    # Entrenar modelo
-    modelo = entrenar_modelo()
-    
-    # Obtener matriculas actuales (ahora con eventos_normalizados)
-    matriculas = obtener_matriculas_actuales()
-    
+def guardar_predicciones(modelo, matriculas):
+    """Guarda las predicciones en la base de datos"""
     conn = connect_db()
     cursor = conn.cursor()
     
-    # Preparar consulta de inserción
+    # Limpiar predicciones anteriores del mismo curso
+    cursor.execute("""
+    DELETE p FROM Prediccion p
+    JOIN Matricula m ON p.id_matricula = m.id
+    WHERE m.Curso = (SELECT MAX(Curso) FROM Matricula)
+    """)
+    
     insert_query = """
     INSERT INTO Prediccion (
         id_matricula,
@@ -169,36 +187,53 @@ def procesar_alumnos_actuales():
     ) VALUES (%s, %s, %s, %s, %s)
     """
     
-    # Procesar cada matrícula actual
     for matricula in matriculas:
-        # Predecir nota usando eventos_normalizados
-        valor_normalizado = matricula['eventos_normalizados']  # Cambio clave aquí
-        nota_predicha = modelo.predict(np.array([[valor_normalizado]]))[0]
-        
-        # Asignar perfil (usando el valor original sin normalizar para la diferencia)
-        # Recuperamos la diferencia real desde la BD si es necesario
-        cluster_numero, cluster_nombre = asignar_perfil(
-            nota=nota_predicha,
-            diferencia_eventos=valor_normalizado  # O usar otro campo si lo prefieres
-        )
-        
-        # Valores a insertar
-        values = (
-            matricula['id_matricula'],
-            float(nota_predicha),
-            cluster_nombre,
-            cluster_numero,
-            datetime.now().date()
-        )
-        
-        # Ejecutar inserción
-        cursor.execute(insert_query, values)
+        try:
+            tendencia = calcular_tendencia(matricula['id'])
+            X_pred = np.array([[matricula['eventos_norm'], tendencia]])
+            nota_pred = float(modelo.predict(X_pred)[0])
+            nota_pred = max(0, min(100, nota_pred))
+            
+            cluster_num, cluster_nom = asignar_perfil(
+                nota=nota_pred,
+                eventos_norm=matricula['eventos_norm'],
+                tendencia=tendencia
+            )
+            
+            cursor.execute(insert_query, (
+                matricula['id'],
+                nota_pred,
+                cluster_nom,
+                cluster_num,
+                datetime.now().date()
+            ))
+            
+        except Exception as e:
+            print(f"Error procesando matrícula {matricula.get('id', 'DESCONOCIDO')}: {str(e)}")
+            continue
     
     conn.commit()
     conn.close()
-    print(f"Predicciones guardadas para {len(matriculas)} alumnos actuales")
+
+def main():
+    print("=== SISTEMA DE PREDICCIÓN ACADÉMICA ===")
+    
+    print("1. Obteniendo datos de entrenamiento...")
+    X_train, y_train = obtener_datos_entrenamiento()
+    print(f"   - Registros obtenidos: {len(X_train)}")
+    
+    print("2. Entrenando modelo Random Forest...")
+    modelo = RandomForestRegressor(n_estimators=150, max_depth=5, random_state=42)
+    modelo.fit(X_train, y_train)
+    
+    print("3. Obteniendo matrículas actuales...")
+    matriculas = obtener_matriculas_actuales()
+    print(f"   - Matrículas a predecir: {len(matriculas)}")
+    
+    print("4. Generando y guardando predicciones...")
+    guardar_predicciones(modelo, matriculas)
+    print("=== PROCESO COMPLETADO ===")
+    print(f"Predicciones guardadas: {len(matriculas)} alumnos")
 
 if __name__ == "__main__":
-    print("Entrenando modelo y procesando alumnos actuales...")
-    procesar_alumnos_actuales()
-    print("Proceso completado!")
+    main()

@@ -1,5 +1,6 @@
 import mysql.connector
 from datetime import datetime
+import numpy as np
 from typing import List, Dict, Tuple
 
 def connect_db():
@@ -10,8 +11,74 @@ def connect_db():
         database="TFG"
     )
 
+def guardar_historico_limpiar_actual():
+    """Guarda las predicciones actuales en histórico y limpia la tabla Prediccion"""
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    try:
+        # 2. Copiar datos actuales a histórico
+        cursor.execute("""
+        INSERT INTO Prediccion_Hist (
+            id_matricula, 
+            Nota_predicha, 
+            Cluster, 
+            Cluster_numero, 
+            Fecha
+        )
+        SELECT 
+            id_matricula,
+            Nota_predicha,
+            Cluster,
+            Cluster_numero,
+            Fecha
+        FROM Prediccion
+        """)
+        
+        cursor.execute("TRUNCATE TABLE Prediccion")
+        
+        conn.commit()
+        print("Datos históricos guardados y tabla Prediccion limpiada")
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"Error en guardado histórico: {str(e)}")
+        raise
+    finally:
+        conn.close()
+
+def calcular_tendencia_eventos(id_matricula: int) -> int:
+    """Determina si la actividad es creciente (1) o decreciente (-1)"""
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT 
+        WEEK(Hora) as semana,
+        COUNT(*) as cantidad
+    FROM 
+        Evento
+    WHERE 
+        id_matricula = %s
+    GROUP BY 
+        WEEK(Hora)
+    ORDER BY 
+        semana
+    """
+    
+    cursor.execute(query, (id_matricula,))
+    resultados = cursor.fetchall()
+    conn.close()
+    
+    if len(resultados) < 2:
+        return 1  # Por defecto si no hay suficientes datos
+    
+    primera = resultados[0][1]
+    ultima = resultados[-1][1]
+    return 1 if ultima >= primera else -1
+
 def obtener_matriculas_anteriores() -> List[Dict]:
-    """Obtiene las matrículas de cursos anteriores con estadísticas necesarias"""
+    """Obtiene matrículas incluyendo las con nota 0"""
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
     
@@ -19,39 +86,32 @@ def obtener_matriculas_anteriores() -> List[Dict]:
     WITH 
     ConteoEventos AS (
         SELECT 
+            m.id,
             m.id_asignatura,
             m.Curso,
-            m.id AS id_matricula,
-            COUNT(e.id) AS total_eventos
+            COUNT(e.id) AS total_eventos,
+            MAX(COUNT(e.id)) OVER (PARTITION BY m.id_asignatura, m.Curso) AS max_eventos,
+            MIN(COUNT(e.id)) OVER (PARTITION BY m.id_asignatura, m.Curso) AS min_eventos,
+            AVG(COUNT(e.id)) OVER (PARTITION BY m.id_asignatura, m.Curso) AS media_eventos,
+            IFNULL(m.Nota, 0) AS Nota
         FROM 
             Matricula m
         LEFT JOIN 
             Evento e ON m.id = e.id_matricula
         GROUP BY 
-            m.id_asignatura, m.Curso, m.id
-    ),
-    MediaEventos AS (
-        SELECT 
-            id_asignatura,
-            Curso,
-            AVG(total_eventos) AS media_eventos
-        FROM 
-            ConteoEventos
-        GROUP BY 
-            id_asignatura, Curso
+            m.id, m.id_asignatura, m.Curso, m.Nota
     )
     SELECT 
-        ce.id_matricula,
-        IFNULL(m.Nota, 0) AS Nota,  # Tratar NULL como 0
-        (ce.total_eventos - me.media_eventos) AS diferencia_eventos
+        id,
+        Nota,
+        CASE 
+            WHEN max_eventos = min_eventos THEN 0
+            ELSE ((total_eventos - media_eventos) / (max_eventos - min_eventos)) * 2 
+        END AS eventos_normalizados
     FROM 
-        ConteoEventos ce
-    JOIN 
-        Matricula m ON ce.id_matricula = m.id
-    JOIN 
-        MediaEventos me ON ce.id_asignatura = me.id_asignatura AND ce.Curso = me.Curso
+        ConteoEventos
     WHERE 
-        ce.Curso < (SELECT MAX(Curso) FROM Matricula)
+        Curso < (SELECT MAX(Curso) FROM Matricula)
     """
     
     cursor.execute(query)
@@ -59,27 +119,28 @@ def obtener_matriculas_anteriores() -> List[Dict]:
     conn.close()
     return resultados
 
-def asignar_perfil(nota: float, diferencia_eventos: float, umbral_actividad: float = 0) -> Tuple[int, str]:
-    """Asigna un perfil según las reglas especificadas"""
-    # Nota ya viene con NULL convertido a 0 por el IFNULL en la consulta SQL
+def asignar_perfil(nota: float, eventos_norm: float, tendencia: int) -> Tuple[int, str]:
+    """Asigna 1 de 8 perfiles basados en:
+    - Nota (aprobado/suspenso)
+    - Actividad (alta/baja)
+    - Tendencia (creciente/decreciente)"""
     if nota >= 50:  # Aprobado
-        if diferencia_eventos > umbral_actividad:
-            return (1, "Perfil 1")  # Nota aprobada, mucha actividad
-        else:
-            return (2, "Perfil 2")   # Nota aprobada, poca actividad
-    else:  # Suspenso (incluye notas NULL convertidas a 0)
-        if diferencia_eventos > umbral_actividad:
-            return (3, "Perfil 3")  # Nota suspensa, mucha actividad
-        else:
-            return (4, "Perfil 4")    # Nota suspensa, poca actividad
+        if eventos_norm > 0:  # Alta actividad
+            return (1, "Aprobado-AltaAct-Creciente") if tendencia > 0 else (2, "Aprobado-AltaAct-Decreciente")
+        else:  # Baja actividad
+            return (3, "Aprobado-BajaAct-Creciente") if tendencia > 0 else (4, "Aprobado-BajaAct-Decreciente")
+    else:  # Suspenso
+        if eventos_norm > 0:  # Alta actividad
+            return (5, "Suspenso-AltaAct-Creciente") if tendencia > 0 else (6, "Suspenso-AltaAct-Decreciente")
+        else:  # Baja actividad
+            return (7, "Suspenso-BajaAct-Creciente") if tendencia > 0 else (8, "Suspenso-BajaAct-Decreciente")
 
 def guardar_predicciones():
-    """Procesa las matrículas antiguas y guarda los perfiles en la tabla Prediccion"""
     matriculas = obtener_matriculas_anteriores()
     conn = connect_db()
     cursor = conn.cursor()
     
-    # Preparar consulta de inserción
+
     insert_query = """
     INSERT INTO Prediccion (
         id_matricula,
@@ -90,31 +151,27 @@ def guardar_predicciones():
     ) VALUES (%s, %s, %s, %s, %s)
     """
     
-    # Procesar cada matrícula
     for matricula in matriculas:
-        cluster_numero, cluster_nombre = asignar_perfil(
+        tendencia = calcular_tendencia_eventos(matricula['id'])
+        cluster_num, cluster_nom = asignar_perfil(
             nota=matricula['Nota'],
-            diferencia_eventos=matricula['diferencia_eventos']
+            eventos_norm=matricula['eventos_normalizados'],
+            tendencia=tendencia
         )
         
-        # Valores a insertar
-        values = (
-            matricula['id_matricula'],
-            matricula['Nota'],  # Usamos la nota (0 si era NULL)
-            cluster_nombre,
-            cluster_numero,
-            datetime.now().date()  # Fecha actual
-        )
-        
-        # Ejecutar inserción
-        cursor.execute(insert_query, values)
+        cursor.execute(insert_query, (
+            matricula['id'],
+            matricula['Nota'],
+            cluster_nom,
+            cluster_num,
+            datetime.now().date()
+        ))
     
-    # Confirmar cambios y cerrar conexión
     conn.commit()
     conn.close()
-    print(f"Se han guardado {len(matriculas)} predicciones de perfil")
+    print(f"Predicciones históricas guardadas: {len(matriculas)} registros")
 
-# Ejecutar el proceso
 if __name__ == "__main__":
+    
+    guardar_historico_limpiar_actual()
     guardar_predicciones()
-    print("Proceso completado exitosamente")
