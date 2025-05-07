@@ -184,7 +184,7 @@ const MainPage = () => {
             <br/><br/>
             Usando avanzados algoritmos de análisis, nuestra plataforma te permite obtener una visión clara sobre el rendimiento académico y el perfil de cada estudiante.
             <br/><br/>
-            Ya sea que seas estudiante o profesor, nuestra herramienta está diseñada para ofrecerte información valiosa que te ayudará a tomar decisiones informadas sobre tu educación.
+            Ya seas estudiante o profesor, nuestra herramienta está diseñada para ofrecerte información valiosa que te ayudará a tomar decisiones sobre tu educación.
           </p>
 
           {!user ? (

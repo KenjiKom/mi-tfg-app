@@ -3,6 +3,7 @@ import '../styles/Common.css';
 import '../styles/ProfessorVisualization.css'
 import { useNavigate } from 'react-router-dom';
 import { Header, Footer } from "../components/HeaderFooter.js";
+import Perfiles from "../documents/Perfiles Académicos.pdf";
 
 const ProfessorDash = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const ProfessorDash = () => {
       <Header />
       <main className="welcome-container" id = "content">
       <h1>Dashboard para profesores</h1>
+      <iframe src={Perfiles} width="100%" height="500px" className="document-frame" style={{ margin: '0.5rem 0' }}></iframe>
       <p>Bienvenido. En esta página podrás visualizar el rendimiento percibido del alumnado:</p>
       <button 
         onClick={handleNavigation} 

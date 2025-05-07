@@ -19,7 +19,7 @@ const FAQ = () => {
               <br/><br/>
               <b>¿Cómo de fiables son las predicciones?</b>
               <br/>
-              La predicción del rendimiento se basa primero en un algoritmo K-Medias, que divide en perfiles (clusters de datos) a los estudiantes de cursos anteriores. Por otra parte, un algoritmo de Bosque Aleatorio es entrenado con los resultados del algoritmo anterior, para poder predecir con alta exactitud el rendimiento de los estudiantes actuales.
+              Nuestro sistema utiliza el algoritmo <b>Regresor de Bosque Aleatorio</b>, un modelo avanzado de aprendizaje automático que combina múltiples árboles de decisión para predecir los pefiles finales de los alumnos con alta precisión
               <br/><br/>
               <b>¿Como accedo a las funciones que brinda la página?</b>
               <br/>

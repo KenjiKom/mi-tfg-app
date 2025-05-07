@@ -304,40 +304,46 @@ const ProfessorVisualization = () => {
         <button onClick={() => setSelectedNota(null)}>Resetear Filtro de Nota</button>
       )}
     </div>
+
+    {/* Gráfico de tarta */}
     <div style={{ height: '300px', width: '48%' }}>
       <h2>Perfiles de los Alumnos</h2>
       <Pie
-        data={{
-          labels: perfilChartData.labels,
-          datasets: [
-            {
-              data: perfilChartData.datasets[0].data,
-              backgroundColor: [
-                '#FF6384',
-                '#36A2EB',
-                '#FFCE56',
-                '#4BC0C0',
-                '#9966FF',
-                '#FF9F40',
-              ],
-            },
+    data={{
+      labels: perfilChartData.labels,
+      datasets: [
+        {
+          data: perfilChartData.datasets[0].data,
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40',
+            '#8BC34A',
+            '#E91E63',
           ],
-        }}
-        options={{
-          plugins: {
-            legend: {
-              display: true,
-              position: 'right',
-            },
-          },
-          onClick: (evt, elements) => {
-            if (elements.length > 0) {
-              const index = elements[0].index;
-              setSelectedPerfil(perfilChartData.labels[index]);
-                }
-              },
-            }}
-            />
+        },
+      ],
+    }}
+    options={{
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right',
+        },
+      },
+      maintainAspectRatio: false,
+      responsive: true,
+      onClick: (evt, elements) => {
+        if (elements.length > 0) {
+          const index = elements[0].index;
+          setSelectedPerfil(perfilChartData.labels[index]);
+        }
+      },
+    }}
+  />
               {selectedPerfil !== null && (
                 <button onClick={() => setSelectedPerfil(null)}>Resetear Filtro de Perfil</button>
               )}
