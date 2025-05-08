@@ -1,0 +1,21 @@
+FROM node:16
+
+WORKDIR /usr/src/app
+
+# Copia SOLO los archivos necesarios para instalar dependencias del backend
+COPY backend/package*.json ./backend/
+
+# Luego instala dependencias del backend
+WORKDIR /usr/src/app/backend
+RUN npm install
+
+# Copia el resto del código
+WORKDIR /usr/src/app
+COPY . .
+
+# Establece el directorio de trabajo final
+WORKDIR /usr/src/app/backend
+
+EXPOSE 5000
+
+CMD ["npm", "run", "start-backend"]
