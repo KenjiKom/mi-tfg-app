@@ -13,15 +13,12 @@ engine = create_engine(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_N
 def cargar_datos_a_bd(curso, eventos_path):
     eventos_excel = pd.read_excel(eventos_path)
 
-    # Convertir manualmente la columna 'Hora' a datetime
     eventos_excel['Hora'] = pd.to_datetime(eventos_excel['Hora'], format='%d/%m/%y, %H:%M:%S', errors='coerce')
 
-    # Filtrar fechas inválidas
     eventos_excel = eventos_excel[
         (eventos_excel['Hora'] >= '1900-01-01') & (eventos_excel['Hora'] <= '2100-12-31')
     ]
 
-    # Cargar datos desde la base de datos
     usuarios_db = pd.read_sql("SELECT id, Nombre FROM Usuario", con=engine)
     matricula_db = pd.read_sql("SELECT * FROM Matricula", con=engine)
     eventos_db = pd.read_sql("SELECT * FROM Evento", con=engine)
@@ -35,7 +32,6 @@ def cargar_datos_a_bd(curso, eventos_path):
         else:
             continue  
 
-        # Filtrar matrículas del usuario en el curso proporcionado
         matriculas_usuario = matricula_db[(matricula_db['id_usuario'] == id_usuario) & (matricula_db['Curso'] == curso)]
         if matriculas_usuario.empty:
             continue  
@@ -76,7 +72,7 @@ if __name__ == "__main__":
         print("Uso: python Carga_datos_3.py <curso> <eventos.xlsx>")
         sys.exit(1)
 
-    curso = sys.argv[1]  # Ahora recibe el curso como parámetro directamente
+    curso = sys.argv[1] 
     eventos_path = sys.argv[2]
 
     cargar_datos_a_bd(curso, eventos_path)

@@ -170,7 +170,7 @@ def guardar_predicciones(modelo, matriculas):
     conn = connect_db()
     cursor = conn.cursor()
     
-    # Limpiar predicciones anteriores del mismo curso
+    
     cursor.execute("""
     DELETE p FROM Prediccion p
     JOIN Matricula m ON p.id_matricula = m.id
@@ -215,25 +215,13 @@ def guardar_predicciones(modelo, matriculas):
     conn.commit()
     conn.close()
 
-def main():
-    print("=== SISTEMA DE PREDICCIÓN ACADÉMICA ===")
+if __name__ == "__main__":
     
-    print("1. Obteniendo datos de entrenamiento...")
     X_train, y_train = obtener_datos_entrenamiento()
-    print(f"   - Registros obtenidos: {len(X_train)}")
     
-    print("2. Entrenando modelo Random Forest...")
     modelo = RandomForestRegressor(n_estimators=150, max_depth=5, random_state=42)
     modelo.fit(X_train, y_train)
     
-    print("3. Obteniendo matrículas actuales...")
     matriculas = obtener_matriculas_actuales()
-    print(f"   - Matrículas a predecir: {len(matriculas)}")
     
-    print("4. Generando y guardando predicciones...")
     guardar_predicciones(modelo, matriculas)
-    print("=== PROCESO COMPLETADO ===")
-    print(f"Predicciones guardadas: {len(matriculas)} alumnos")
-
-if __name__ == "__main__":
-    main()

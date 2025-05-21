@@ -17,7 +17,7 @@ def guardar_historico_limpiar_actual():
     cursor = conn.cursor()
     
     try:
-        # 2. Copiar datos actuales a histórico
+        
         cursor.execute("""
         INSERT INTO Prediccion_Hist (
             id_matricula, 
