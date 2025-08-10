@@ -13,7 +13,7 @@ const LoginPage = () => {
   const handleLogin = () => {
     setError(null);
     axios
-      .get('http://localhost:5000/usuarios/login', {
+      .post('http://localhost:5000/usuarios/login', {
         params: { Nombre: nombre, Contrasena: contrasena },
       })
       .then(response => {
