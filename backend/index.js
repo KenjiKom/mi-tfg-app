@@ -11,7 +11,6 @@ const mensajeRoutes = require('./routes/mensajeRoutes');
 const app = express();
 const PORT = 5000;
 
-// Middleware
 app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE']

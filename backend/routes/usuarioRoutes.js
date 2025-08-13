@@ -5,9 +5,7 @@ const router = express.Router();
 
 router.post('/login', async (req, res) => {  
     const { Nombre, Contrasena } = req.body;
-    
     try {
-        // 1. Buscar solo por nombre
         db.query(
             'SELECT * FROM Usuario WHERE Nombre = ?',
             [Nombre],
@@ -19,13 +17,11 @@ router.post('/login', async (req, res) => {
 
                 const user = results[0];
                 
-                // 2. Comparar con bcrypt
                 const match = await bcrypt.compare(Contrasena, user.Contrasena);
                 if (!match) {
                     return res.status(404).json({ error: 'Usuario o contraseña incorrectos' });
                 }
 
-                // 3. Respuesta exitosa
                 res.json({
                     id: user.id,
                     Nombre: user.Nombre,
