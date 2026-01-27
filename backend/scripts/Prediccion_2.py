@@ -219,7 +219,7 @@ if __name__ == "__main__":
     
     X_train, y_train = obtener_datos_entrenamiento()
     
-    modelo = RandomForestRegressor(n_estimators=150, max_depth=5, random_state=42)
+    modelo = RandomForestRegressor(n_estimators=300, max_depth=3, min_samples_leaf=5, random_state=42)
     modelo.fit(X_train, y_train)
     
     matriculas = obtener_matriculas_actuales()

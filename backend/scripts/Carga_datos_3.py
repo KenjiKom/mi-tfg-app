@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
+from sqlalchemy import text
 
 DB_USER = "root"
 DB_PASSWORD = "root"
@@ -13,59 +14,59 @@ engine = create_engine(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_N
 def cargar_datos_a_bd(curso, eventos_path):
     eventos_excel = pd.read_excel(eventos_path)
 
-    eventos_excel['Hora'] = pd.to_datetime(eventos_excel['Hora'], format='%d/%m/%y, %H:%M:%S', errors='coerce')
+    eventos_excel['Hora'] = pd.to_datetime(
+        eventos_excel['Hora'],
+        format='%d/%m/%y, %H:%M:%S',
+        errors='coerce'
+    )
 
-    eventos_excel = eventos_excel[
-        (eventos_excel['Hora'] >= '1900-01-01') & (eventos_excel['Hora'] <= '2100-12-31')
+    eventos_excel = eventos_excel.dropna(subset=['Hora'])
+
+    usuarios = pd.read_sql("SELECT id, Nombre FROM Usuario", con=engine)
+    usuarios_dict = dict(zip(usuarios['Nombre'], usuarios['id']))
+
+    matriculas = pd.read_sql(
+        text("SELECT id AS id_matricula, id_usuario FROM Matricula WHERE Curso = :curso"),
+        con=engine,
+        params={"curso": curso}
+    )
+
+
+    eventos_excel['id_usuario'] = eventos_excel['Nombre usuario'].map(usuarios_dict)
+    eventos_excel = eventos_excel.dropna(subset=['id_usuario'])
+
+    eventos_excel = eventos_excel.merge(
+        matriculas,
+        on='id_usuario',
+        how='inner'
+    )
+
+    eventos_excel = eventos_excel.rename(columns={
+        'Nombre usuario': 'Nombre',
+        'Usuario afectado': 'Afectado',
+        'Contexto del evento': 'Contexto',
+        'Nombre evento': 'Evento',
+        'Descripcion': 'Descripción',
+        'Direccion IP': 'Ip'
+    })
+
+    columnas_finales = [
+        'id_matricula', 'Hora', 'Nombre', 'Afectado',
+        'Contexto', 'Componente', 'Evento',
+        'Descripción', 'Origen', 'Ip'
     ]
 
-    usuarios_db = pd.read_sql("SELECT id, Nombre FROM Usuario", con=engine)
-    matricula_db = pd.read_sql("SELECT * FROM Matricula", con=engine)
-    eventos_db = pd.read_sql("SELECT * FROM Evento", con=engine)
+    eventos_excel[columnas_finales].to_sql(
+        'Evento',
+        con=engine,
+        if_exists='append',
+        index=False,
+        chunksize=5000,
+        method='multi'
+    )
 
-    eventos = []
+    print(f"Carga completada: {len(eventos_excel)} eventos procesados")
 
-    for _, evento in eventos_excel.iterrows():
-        usuario_evento = usuarios_db[usuarios_db['Nombre'] == evento["Nombre usuario"]]
-        if not usuario_evento.empty:
-            id_usuario = usuario_evento['id'].values[0]
-        else:
-            continue  
-
-        matriculas_usuario = matricula_db[(matricula_db['id_usuario'] == id_usuario) & (matricula_db['Curso'] == curso)]
-        if matriculas_usuario.empty:
-            continue  
-
-        for _, matricula in matriculas_usuario.iterrows():
-            existe_evento = eventos_db[
-                (eventos_db['id_matricula'] == matricula['id']) &
-                (eventos_db['Hora'] == evento['Hora']) &
-                (eventos_db['Evento'] == evento['Nombre evento']) &
-                (eventos_db['Descripción'] == evento['Descripcion']) &
-                (eventos_db['Ip'] == evento['Direccion IP'])
-            ]
-
-            if existe_evento.empty:
-                eventos.append({
-                    'id_matricula': matricula['id'],
-                    'Hora': evento['Hora'],
-                    'Nombre': evento['Nombre usuario'],
-                    'Afectado': evento['Usuario afectado'],
-                    'Contexto': evento['Contexto del evento'],
-                    'Componente': evento['Componente'],
-                    'Evento': evento['Nombre evento'],
-                    'Descripción': evento['Descripcion'],
-                    'Origen': evento['Origen'],
-                    'Ip': evento['Direccion IP']
-                })
-
-    eventos_df = pd.DataFrame(eventos)
-
-    if not eventos_df.empty:
-        eventos_df.to_sql('Evento', con=engine, if_exists='append', index=False)
-        print(f"Se han insertado {len(eventos_df)} registros nuevos en la tabla Evento.")
-    else:
-        print("No se encontraron registros nuevos para insertar en la tabla Evento.")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
