@@ -2,9 +2,8 @@ const express = require('express');
 const db = require('../db/connection');
 const router = express.Router();
 
-// Obtener los alumnos y sus predicciones para un profesor y una asignatura
 router.get('/alumnos', (req, res) => {
-    const profesorId = req.query.profesorId; // Aquí recibimos el id del profesor
+    const profesorId = req.query.profesorId;
     
     // Consulta para obtener las predicciones de los alumnos
     let query = `
