@@ -12,7 +12,6 @@ def connect_db():
     )
 
 def guardar_historico_limpiar_actual():
-    """Guarda las predicciones actuales en histórico y limpia la tabla Prediccion"""
     conn = connect_db()
     cursor = conn.cursor()
     
@@ -48,7 +47,6 @@ def guardar_historico_limpiar_actual():
         conn.close()
 
 def calcular_tendencia_eventos(id_matricula: int) -> int:
-    """Determina si la actividad es creciente (1) o decreciente (-1)"""
     conn = connect_db()
     cursor = conn.cursor()
     
@@ -78,7 +76,6 @@ def calcular_tendencia_eventos(id_matricula: int) -> int:
     return 1 if ultima >= primera else -1
 
 def obtener_matriculas_anteriores() -> List[Dict]:
-    """Obtiene matrículas incluyendo las con nota 0"""
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
     
@@ -120,10 +117,6 @@ def obtener_matriculas_anteriores() -> List[Dict]:
     return resultados
 
 def asignar_perfil(nota: float, eventos_norm: float, tendencia: int) -> Tuple[int, str]:
-    """Asigna 1 de 8 perfiles basados en:
-    - Nota (aprobado/suspenso)
-    - Actividad (alta/baja)
-    - Tendencia (creciente/decreciente)"""
     if nota >= 50:  # Aprobado
         if eventos_norm > 0:  # Alta actividad
             return (1, "Aprobado-AltaAct-Creciente") if tendencia > 0 else (2, "Aprobado-AltaAct-Decreciente")
