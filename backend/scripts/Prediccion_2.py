@@ -13,6 +13,10 @@ def connect_db():
     )
 
 def calcular_tendencia(id_matricula: int) -> float:
+<<<<<<< HEAD
+=======
+    """Calcula la pendiente de la regresión lineal de actividad semanal"""
+>>>>>>> origin/master
     conn = connect_db()
     cursor = conn.cursor()
     
@@ -43,6 +47,10 @@ def calcular_tendencia(id_matricula: int) -> float:
     return slope
 
 def obtener_datos_entrenamiento() -> Tuple[np.ndarray, np.ndarray]:
+<<<<<<< HEAD
+=======
+    """Obtiene datos históricos normalizados para entrenamiento"""
+>>>>>>> origin/master
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
     
@@ -100,6 +108,10 @@ def obtener_datos_entrenamiento() -> Tuple[np.ndarray, np.ndarray]:
     return np.array(X), np.array(y)
 
 def obtener_matriculas_actuales() -> List[Dict]:
+<<<<<<< HEAD
+=======
+    """Obtiene matrículas actuales con eventos normalizados"""
+>>>>>>> origin/master
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
     
@@ -147,6 +159,13 @@ def obtener_matriculas_actuales() -> List[Dict]:
     return resultados
 
 def asignar_perfil(nota: float, eventos_norm: float, tendencia: float) -> Tuple[int, str]:
+<<<<<<< HEAD
+=======
+    """Asigna 1 de 8 perfiles basados en:
+    - Nota (aprobado/suspenso)
+    - Actividad (alta/baja)
+    - Tendencia (creciente/decreciente)"""
+>>>>>>> origin/master
     if nota >= 50:
         if eventos_norm > 0:
             return (1, "Aprobado-AltaAct-Creciente") if tendencia > 0 else (2, "Aprobado-AltaAct-Decreciente")
@@ -159,6 +178,10 @@ def asignar_perfil(nota: float, eventos_norm: float, tendencia: float) -> Tuple[
             return (7, "Suspenso-BajaAct-Creciente") if tendencia > 0 else (8, "Suspenso-BajaAct-Decreciente")
 
 def guardar_predicciones(modelo, matriculas):
+<<<<<<< HEAD
+=======
+    """Guarda las predicciones en la base de datos"""
+>>>>>>> origin/master
     conn = connect_db()
     cursor = conn.cursor()
     
@@ -211,7 +234,11 @@ if __name__ == "__main__":
     
     X_train, y_train = obtener_datos_entrenamiento()
     
+<<<<<<< HEAD
     modelo = RandomForestRegressor(n_estimators=300, max_depth=3, min_samples_leaf=5, random_state=42)
+=======
+    modelo = RandomForestRegressor(n_estimators=150, max_depth=5, random_state=42)
+>>>>>>> origin/master
     modelo.fit(X_train, y_train)
     
     matriculas = obtener_matriculas_actuales()

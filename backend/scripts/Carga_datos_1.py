@@ -30,7 +30,10 @@ def cargar_datos_a_bd(usuarios_path):
     usuarios_existentes = pd.read_sql("SELECT Nombre FROM Usuario", con=engine)
     usuarios_nuevos = usuarios[~usuarios["Nombre"].isin(usuarios_existentes["Nombre"])]
 
+<<<<<<< HEAD
     usuarios_nuevos["Contrasena"] = usuarios_nuevos["Contrasena"].apply(lambda x: x.strip())
+=======
+>>>>>>> origin/master
     usuarios_nuevos["Contrasena"] = usuarios_nuevos["Contrasena"].apply(
         lambda x: bcrypt.hashpw(x.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     )
