@@ -13,7 +13,6 @@ const LoginPage = () => {
   const handleLogin = () => {
     setError(null);
     axios
-<<<<<<< HEAD
     .post('http://localhost:5000/usuarios/login', {
       Nombre: nombre,
       Contrasena: contrasena
@@ -22,12 +21,6 @@ const LoginPage = () => {
         'Content-Type': 'application/json'
       }
     }).then(response => {
-=======
-      .post('http://localhost:5000/usuarios/login', {
-        params: { Nombre: nombre, Contrasena: contrasena },
-      })
-      .then(response => {
->>>>>>> origin/master
         const user = response.data;
   
         if (user) {
