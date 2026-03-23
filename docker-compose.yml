@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: tfg_backend
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: mysql-db    
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: TFG
+    volumes:
+      - ./backend:/usr/src/app/backend
+    networks:
+      - tfg_network
+    working_dir: /usr/src/app/backend
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tfg_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - tfg_network
+
+networks:
+  tfg_network:
+    driver: bridge
